@@ -46,4 +46,27 @@ class RetrievePhotoAlbumTest extends TestCase
 
         $this->seeStatusCode(404);
     }
+
+    /** @test **/
+    public function can_retrieve_a_list_of_only_published_photo_albums()
+    {
+        $this->withoutExceptionHandling();
+
+        $albumA = factory(PhotoAlbum::class)->states('published')->create();
+        $unpublished = factory(PhotoAlbum::class)->states('unpublished')->create();
+        $albumB = factory(PhotoAlbum::class)->states('published')->create();
+        $albumC = factory(PhotoAlbum::class)->states('published')->create();
+
+        $this->json('GET', '/photoalbums');
+        $content = json_decode($this->response->getContent());
+
+        $this->seeStatusCode(200);
+        $this->seeJson();
+
+        $this->assertCollectionEquals([
+            $albumA,
+            $albumB,
+            $albumC
+        ], $this->responseData('data'));
+    }
 }

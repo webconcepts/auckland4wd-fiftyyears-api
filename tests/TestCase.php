@@ -1,6 +1,8 @@
 <?php
 
 use App\Exceptions\Handler;
+use PHPUnit\Framework\Assert;
+use Illuminate\Support\Collection;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 
 abstract class TestCase extends Laravel\Lumen\Testing\TestCase
@@ -24,5 +26,34 @@ abstract class TestCase extends Laravel\Lumen\Testing\TestCase
                 throw $e;   
             }   
         }); 
+    }
+
+    /**
+     * Get the original data value returned to the response from the controller
+     * 
+     * @param mixed $key
+     * @return mixed value
+     */
+    protected function responseData($key)
+    {
+        return $this->response->getOriginalContent()[$key];
+    }
+
+    /**
+     * Assert that a collection's contents equal an expected array of values
+     * 
+     * Blatant copy of Adam Wathan's crafy use of the zip method :)
+     * 
+     * @param array $expected
+     * @param Collection $collection
+     */
+    protected function assertCollectionEquals($expected, Collection $collection)
+    {
+        $this->assertEquals(count($expected), count($collection));
+
+        $collection->zip($expected)->each(function ($pair) {
+            list($a, $b) = $pair;
+            $this->assertTrue($a->is($b), 'Failed asserting that the collection equals the expected contents.');
+        });
     }
 }

@@ -15,4 +15,5 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->get('photoalbums', ['uses' => 'PhotoAlbumController@index']);
 $router->get('photoalbums/{id}', ['uses' => 'PhotoAlbumController@show']);
