@@ -17,10 +17,10 @@ class CreatePhotoAlbumsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->string('title');
-            $table->date('date');
-            $table->string('location');
-            $table->string('photographer');
-            $table->text('description'); // ->nullable();
+            $table->date('date')->nullable();
+            $table->string('location')->nullable();
+            $table->string('photographer')->nullable();
+            $table->text('description')->nullable();
             $table->datetime('published_at')->nullable();
             $table->timestamps();
         });

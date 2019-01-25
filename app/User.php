@@ -29,4 +29,19 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = [
         'password',
     ];
+
+    /**
+     * Find a user by a given email, or create a new user for that email
+     *
+     * @param string $email
+     * @param string $name
+     * @return App\User
+     */
+    public static function firstOrCreateByEmail($email, $name = null)
+    {
+        return self::firstOrCreate(
+            ['email' => $email],
+            ['name' => $name]
+        );
+    }
 }

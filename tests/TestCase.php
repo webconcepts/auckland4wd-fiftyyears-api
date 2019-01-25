@@ -17,20 +17,24 @@ abstract class TestCase extends Laravel\Lumen\Testing\TestCase
         return require __DIR__.'/../bootstrap/app.php';
     }
 
-    protected function withoutExceptionHandling()   
-    {   
-        $this->app->instance(ExceptionHandler::class, new class extends Handler {   
-            public function __construct() {}    
-            public function report(Exception $e) {} 
-            public function render($request, Exception $e) {    
-                throw $e;   
-            }   
-        }); 
+    /**
+     * Disable lumen's default exception handling during a test.
+     * Copied from Laravel.
+     */
+    protected function withoutExceptionHandling()
+    {
+        $this->app->instance(ExceptionHandler::class, new class extends Handler {
+            public function __construct() {}
+            public function report(Exception $e) {}
+            public function render($request, Exception $e) {
+                throw $e;
+            }
+        });
     }
 
     /**
      * Get the original data value returned to the response from the controller
-     * 
+     *
      * @param mixed $key
      * @return mixed value
      */
@@ -40,10 +44,20 @@ abstract class TestCase extends Laravel\Lumen\Testing\TestCase
     }
 
     /**
+     * Assert that the response content json contains the given key
+     *
+     * @param string $key
+     */
+    protected function assertJsonHasKey($key)
+    {
+        $this->assertObjectHasAttribute($key, json_decode($this->response->getContent()));
+    }
+
+    /**
      * Assert that a collection's contents equal an expected array of values
-     * 
+     *
      * Blatant copy of Adam Wathan's crafy use of the zip method :)
-     * 
+     *
      * @param array $expected
      * @param Collection $collection
      */

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class PhotoAlbum extends Model
@@ -9,6 +10,11 @@ class PhotoAlbum extends Model
     protected $guarded = [];
 
     protected $dates = ['date'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function scopePublished($query)
     {
@@ -35,7 +41,7 @@ class PhotoAlbum extends Model
     {
         return [
             'title' => $this->title,
-            'date' => $this->date->toDateString(), // yyyy-mm-dd
+            'date' => ($this->date) ? $this->date->toDateString() : null, // yyyy-mm-dd
             'location' => $this->location,
             'photographer' => $this->photographer,
             'description' => $this->description,
