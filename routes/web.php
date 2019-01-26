@@ -19,3 +19,4 @@ $router->get('photoalbums', ['uses' => 'PhotoAlbumController@index']);
 $router->post('photoalbums', ['uses' => 'PhotoAlbumController@store']);
 $router->get('photoalbums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
 $router->patch('photoalbums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@update']);
+$router->delete('photoalbums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@destroy']);

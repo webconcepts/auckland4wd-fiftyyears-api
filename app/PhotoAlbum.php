@@ -19,12 +19,17 @@ class PhotoAlbum extends Model
 
     public function scopePublished($query)
     {
-        return $query->whereNotNull('published_at');
+        return $query->whereNotNull('published_at')->whereNull('removed_at');
     }
 
     public function scopeUnpublished($query)
     {
-        return $query->whereNull('published_at');
+        return $query->whereNull('published_at')->whereNull('removed_at');
+    }
+
+    public function scopeRemoved($query)
+    {
+        return $query->whereNotNull('removed_at');
     }
 
     /**
@@ -36,11 +41,33 @@ class PhotoAlbum extends Model
     }
 
     /**
+     * @return bool true if removed
+     */
+    public function isRemoved()
+    {
+        return $this->removed_at !== null;
+    }
+
+    /**
      * Publish this photo album. Sets published_at date and persists to db
      */
     public function publish()
     {
-        $this->update(['published_at' => $this->freshTimestamp()]);
+        $this->update([
+            'published_at' => $this->freshTimestamp(),
+            'removed_at' => null,
+        ]);
+    }
+
+    /**
+     * Remove this photo album. Sets removed_at date and persists to db
+     */
+    public function remove()
+    {
+        $this->update([
+            'removed_at' => $this->freshTimestamp(),
+            'published_at' => null
+        ]);
     }
 
     public function toArray()

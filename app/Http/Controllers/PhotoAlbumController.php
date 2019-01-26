@@ -78,4 +78,16 @@ class PhotoAlbumController extends Controller
 
         return response(['data' => $album]);
     }
+
+    /**
+     * Remove an unpublished photo album
+     */
+    public function destroy($obfuscatedId, Request $request)
+    {
+        $album = PhotoAlbum::unpublished()
+            ->findOrFail(PhotoAlbum::actualId($obfuscatedId))
+            ->remove();
+
+        return response('', 200);
+    }
 }

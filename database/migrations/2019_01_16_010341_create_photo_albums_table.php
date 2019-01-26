@@ -22,6 +22,7 @@ class CreatePhotoAlbumsTable extends Migration
             $table->string('photographer')->nullable();
             $table->text('description')->nullable();
             $table->datetime('published_at')->nullable();
+            $table->datetime('removed_at')->nullable();
             $table->timestamps();
         });
     }

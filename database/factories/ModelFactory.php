@@ -34,11 +34,20 @@ $factory->define(App\PhotoAlbum::class, function (Faker\Generator $faker) {
 $factory->state(App\PhotoAlbum::class, 'published', function ($faker) {
     return [
         'published_at' => Carbon::parse('-1 week'),
+        'removed_at' => null,
     ];
 });
 
 $factory->state(App\PhotoAlbum::class, 'unpublished', function ($faker) {
     return [
         'published_at' => null,
+        'removed_at' => null,
+    ];
+});
+
+$factory->state(App\PhotoAlbum::class, 'removed', function ($faker) {
+    return [
+        'published_at' => null,
+        'removed_at' => Carbon::parse('-1 day'),
     ];
 });
