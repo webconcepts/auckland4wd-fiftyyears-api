@@ -22,7 +22,7 @@ class RetrievePhotoAlbumTest extends TestCase
         ]);
         $obfuscatedId = app(IdObfuscator::class)->encode($album->id);
 
-        $this->json('GET', '/photoalbums/'.$obfuscatedId);
+        $this->json('GET', '/photo-albums/'.$obfuscatedId);
 
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
@@ -41,11 +41,11 @@ class RetrievePhotoAlbumTest extends TestCase
     }
 
     /** @test **/
-    public function cannot_retrieve_an_unpublished_photo_album()
+    public function cannot_retrieve_a_draft_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create();
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
 
-        $this->json('GET', '/photoalbums/'.$album->id);
+        $this->json('GET', '/photo-albums/'.$album->id);
 
         $this->seeStatusCode(404);
     }
@@ -56,11 +56,11 @@ class RetrievePhotoAlbumTest extends TestCase
         $this->withoutExceptionHandling();
 
         $albumA = factory(PhotoAlbum::class)->states('published')->create();
-        $unpublished = factory(PhotoAlbum::class)->states('unpublished')->create();
+        $draft = factory(PhotoAlbum::class)->states('draft')->create();
         $albumB = factory(PhotoAlbum::class)->states('published')->create();
         $albumC = factory(PhotoAlbum::class)->states('published')->create();
 
-        $this->json('GET', '/photoalbums');
+        $this->json('GET', '/photo-albums');
         $content = json_decode($this->response->getContent());
 
         $this->seeStatusCode(200);

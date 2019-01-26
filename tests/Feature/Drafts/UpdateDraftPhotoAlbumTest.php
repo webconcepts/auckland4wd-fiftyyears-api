@@ -4,16 +4,16 @@ use App\PhotoAlbum;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
-class UpdatePhotoAlbumTest extends TestCase
+class UpdateDraftPhotoAlbumTest extends TestCase
 {
     use DatabaseMigrations;
 
     /** @test **/
-    public function can_update_an_unpublished_album()
+    public function can_update_a_draft_album()
     {
         $this->withoutExceptionHandling();
 
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create([
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
             'title' => 'Original title',
             'date' => '1990-01-01',
             'location' => 'Original location',
@@ -21,7 +21,7 @@ class UpdatePhotoAlbumTest extends TestCase
             'description' => '<p>Original description</p>',
         ]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'title' => 'New title',
             'date' => '2018-12-31',
             'location' => 'New location',
@@ -59,7 +59,7 @@ class UpdatePhotoAlbumTest extends TestCase
     {
         $album = factory(PhotoAlbum::class)->states('published')->create([]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'title' => 'New title'
         ]);
 
@@ -69,11 +69,11 @@ class UpdatePhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_title()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create([
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
             'title' => 'Original title'
         ]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'title' => 'New title'
         ]);
 
@@ -84,11 +84,11 @@ class UpdatePhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_date()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create([
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
             'date' => '1990-01-01'
         ]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'date' => '2018-12-31'
         ]);
 
@@ -99,11 +99,11 @@ class UpdatePhotoAlbumTest extends TestCase
     /** @test **/
     public function date_must_be_in_correct_format()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create([
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
             'date' => '1990-01-01'
         ]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'date' => '2018/12/31'
         ]);
 
@@ -114,11 +114,11 @@ class UpdatePhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_location()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create([
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
             'location' => 'Original location'
         ]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'location' => 'New location'
         ]);
 
@@ -129,11 +129,11 @@ class UpdatePhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_photographer()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create([
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
             'photographer' => 'Original photographer'
         ]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'photographer' => 'New photographer'
         ]);
 
@@ -144,11 +144,11 @@ class UpdatePhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_description()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create([
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
             'description' => '<p>Original description</p>'
         ]);
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), [
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'description' => '<p>New description</p>'
         ]);
 
@@ -159,9 +159,9 @@ class UpdatePhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_update_without_a_valid_field()
     {
-        $album = factory(PhotoAlbum::class)->states('unpublished')->create();
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
 
-        $this->json('PATCH', '/photoalbums/'.$album->obfuscatedId(), []);
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), []);
 
         $this->seeStatusCode(400);
     }

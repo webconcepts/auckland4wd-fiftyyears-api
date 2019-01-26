@@ -6,14 +6,14 @@ use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
-class AddPhotoAlbumTest extends TestCase
+class AddDraftPhotoAlbumTest extends TestCase
 {
     use DatabaseMigrations;
 
     /** @test **/
     public function guest_can_create_a_valid_photo_album()
     {
-        $this->json('POST', '/photoalbums', [
+        $this->json('POST', '/drafts/photo-albums', [
             'title' => 'Woodhill forest trip',
             'user' => (object) [
                 'name' => 'Joe Blogs',
@@ -29,7 +29,7 @@ class AddPhotoAlbumTest extends TestCase
         ]);
 
         tap(PhotoAlbum::first(), function ($album) {
-            $this->seeHeader('Location', url('/photoalbums/'.$album->obfuscatedId()));
+            $this->seeHeader('Location', url('/drafts/photo-albums/'.$album->obfuscatedId()));
 
             $this->seeJson([
                 'id' => $album->obfuscatedId(),
@@ -54,7 +54,7 @@ class AddPhotoAlbumTest extends TestCase
             'email' => 'jane@blogs.com'
         ]);
 
-        $this->json('POST', '/photoalbums', [
+        $this->json('POST', '/drafts/photo-albums', [
             'title' => 'Woodhill forest trip',
             'user' => (object) [
                 'email' => 'jane@blogs.com'
@@ -72,7 +72,7 @@ class AddPhotoAlbumTest extends TestCase
     /** @test **/
     public function title_is_required()
     {
-        $this->json('POST', '/photoalbums', [
+        $this->json('POST', '/drafts/photo-albums', [
             'title' => '',
             'user' => (object) [
                 'name' => 'Joe Blogs',
@@ -87,7 +87,7 @@ class AddPhotoAlbumTest extends TestCase
     /** @test **/
     public function user_email_is_required()
     {
-        $this->json('POST', '/photoalbums', [
+        $this->json('POST', '/drafts/photo-albums', [
             'title' => 'Woodhill forest trip',
             'user' => (object) [
                 'name' => 'Joe Blogs',

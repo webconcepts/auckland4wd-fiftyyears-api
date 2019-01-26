@@ -38,7 +38,7 @@ $factory->state(App\PhotoAlbum::class, 'published', function ($faker) {
     ];
 });
 
-$factory->state(App\PhotoAlbum::class, 'unpublished', function ($faker) {
+$factory->state(App\PhotoAlbum::class, 'draft', function ($faker) {
     return [
         'published_at' => null,
         'removed_at' => null,
