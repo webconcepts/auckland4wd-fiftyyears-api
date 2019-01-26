@@ -23,9 +23,8 @@ class PhotoAlbumController extends Controller
     public function show($obfuscatedId)
     {
         return [
-            'data' => PhotoAlbum::published()->findOrFail(
-                PhotoAlbum::actualId($obfuscatedId)
-            )
+            'data' => PhotoAlbum::published()
+                ->findOrFail(PhotoAlbum::actualId($obfuscatedId))
         ];
     }
 
@@ -53,5 +52,30 @@ class PhotoAlbumController extends Controller
             ->header('Location', route('photoalbums.show', [
                 'obfuscatedId' => $album->obfuscatedId()
             ]));
+    }
+
+    /**
+     * Update value(s) for an existing unpublished photo album
+     */
+    public function update($obfuscatedId, Request $request)
+    {
+        $validData = $this->validate($request, [
+            'title' => 'nullable',
+            'date' => 'nullable|date_format:"Y-m-d"',
+            'location' => 'nullable',
+            'photographer' => 'nullable',
+            'description' => 'nullable',
+        ]);
+
+        if (empty($validData)) {
+            abort(400, 'No valid data provided');
+        }
+
+        $album = PhotoAlbum::unpublished()
+            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
+
+        $album->update($validData);
+
+        return response(['data' => $album]);
     }
 }

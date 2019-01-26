@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\IdObfuscator;
 use App\OptimusIdObfuscator;
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
