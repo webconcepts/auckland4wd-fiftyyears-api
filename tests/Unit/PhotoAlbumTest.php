@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\PhotoAlbum;
+use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -45,9 +46,15 @@ class PhotoAlbumTest extends TestCase
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ]);
 
+        $idObfuscator = Mockery::mock(IdObfuscator::class);
+        $idObfuscator->shouldReceive('encode')->with(1)->andReturn('OBFUSCATEDID1');
+
+        $this->app->instance(IdObfuscator::class, $idObfuscator);
+
         $result = $album->toArray();
 
         $this->assertEquals([
+            'id' => 'OBFUSCATEDID1',
             'title' => 'Woodhill forest trip',
             'date' => '1995-11-12',
             'location' => 'Woodhill forest',

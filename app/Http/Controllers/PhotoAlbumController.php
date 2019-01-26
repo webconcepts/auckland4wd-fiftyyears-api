@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\PhotoAlbum;
+use App\IdObfuscator;
 use Illuminate\Http\Request;
 
 class PhotoAlbumController extends Controller
@@ -19,9 +20,13 @@ class PhotoAlbumController extends Controller
     /**
      * Retrieve an individual photo album
      */
-    public function show($id)
+    public function show($obfuscatedId)
     {
-        return ['data' => PhotoAlbum::published()->findOrFail($id)];
+        return [
+            'data' => PhotoAlbum::published()->findOrFail(
+                PhotoAlbum::actualId($obfuscatedId)
+            )
+        ];
     }
 
     /**
@@ -29,7 +34,6 @@ class PhotoAlbumController extends Controller
      */
     public function store(Request $request)
     {
-        // validation
         $this->validate($request, [
             'title' => 'required',
             'user.email' => 'required|email'
@@ -46,6 +50,8 @@ class PhotoAlbumController extends Controller
         ]);
 
         return response(['data' => $album], 201)
-            ->header('Location', route('photoalbums.show', ['id' => $album->id]));
+            ->header('Location', route('photoalbums.show', [
+                'obfuscatedId' => $album->obfuscatedId()
+            ]));
     }
 }

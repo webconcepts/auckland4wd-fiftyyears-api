@@ -2,11 +2,12 @@
 
 namespace App;
 
-use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class PhotoAlbum extends Model
 {
+    use ObfuscatesId;
+
     protected $guarded = [];
 
     protected $dates = ['date'];
@@ -40,6 +41,7 @@ class PhotoAlbum extends Model
     public function toArray()
     {
         return [
+            'id' => $this->obfuscatedId(),
             'title' => $this->title,
             'date' => ($this->date) ? $this->date->toDateString() : null, // yyyy-mm-dd
             'location' => $this->location,

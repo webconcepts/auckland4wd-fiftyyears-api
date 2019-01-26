@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\PhotoAlbum;
+use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -19,16 +20,18 @@ class RetrievePhotoAlbumTest extends TestCase
             'photographer' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ]);
+        $obfuscatedId = app(IdObfuscator::class)->encode($album->id);
 
-        $this->json('GET', '/photoalbums/'.$album->id);
-            
+        $this->json('GET', '/photoalbums/'.$obfuscatedId);
+
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
             'data' => [
-                'title', 'date', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'location', 'photographer', 'description'
             ]
         ]);
         $this->seeJson([
+            'id' => $obfuscatedId,
             'title' => 'Woodhill forest trip',
             'date' => '1995-11-12',
             'location' => 'Woodhill forest',

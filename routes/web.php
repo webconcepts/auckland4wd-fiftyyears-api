@@ -16,5 +16,5 @@ $router->get('/', function () use ($router) {
 });
 
 $router->get('photoalbums', ['uses' => 'PhotoAlbumController@index']);
-$router->get('photoalbums/{id}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
+$router->get('photoalbums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
 $router->post('photoalbums', ['uses' => 'PhotoAlbumController@store']);

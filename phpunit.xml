@@ -24,5 +24,8 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
+        <env name="OPTIMUS_PRIME" value="961472683"/>
+        <env name="OPTIMUS_INVERSE" value="1772474883"/>
+        <env name="OPTIMUS_RANDOM" value="471565496"/>
     </php>
 </phpunit>

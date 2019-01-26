@@ -2,6 +2,7 @@
 
 use App\User;
 use App\PhotoAlbum;
+use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -12,8 +13,6 @@ class AddPhotoAlbumTest extends TestCase
     /** @test **/
     public function guest_can_create_a_valid_photo_album()
     {
-        $this->withoutExceptionHandling();
-
         $this->json('POST', '/photoalbums', [
             'title' => 'Woodhill forest trip',
             'user' => (object) [
@@ -25,15 +24,21 @@ class AddPhotoAlbumTest extends TestCase
         $this->seeStatusCode(201);
         $this->seeJsonStructure([
             'data' => [
-                'title', 'date', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'location', 'photographer', 'description'
             ]
-        ]);
-        $this->seeJson([
-            'title' => 'Woodhill forest trip',
         ]);
 
         tap(PhotoAlbum::first(), function ($album) {
-            $this->seeHeader('Location', url('/photoalbums/'.$album->id));
+            $this->seeHeader('Location', url('/photoalbums/'.$album->obfuscatedId()));
+
+            $this->seeJson([
+                'id' => $album->obfuscatedId(),
+                'title' => 'Woodhill forest trip',
+                'date' => null,
+                'location' => null,
+                'photographer' => null,
+                'description' => null
+            ]);
 
             $this->assertFalse($album->isPublished());
             $this->assertEquals('Woodhill forest trip', $album->title);
