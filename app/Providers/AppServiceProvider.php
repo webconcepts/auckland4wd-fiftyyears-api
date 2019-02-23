@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\IdObfuscator;
 use App\OptimusIdObfuscator;
 use Illuminate\Http\Request;
+use App\VerificationCodeGenerator;
 use Illuminate\Support\ServiceProvider;
+use App\RandomVerificationCodeGenerator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,5 +23,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(IdObfuscator::class, OptimusIdObfuscator::class);
+
+        $this->app->singleton(VerificationCodeGenerator::class, function () {
+            return new RandomVerificationCodeGenerator();
+        });
+
+        $this->app->bind(VerificationCodeGenerator::class, RandomVerificationCodeGenerator::class);
     }
 }

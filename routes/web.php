@@ -18,9 +18,16 @@ $router->get('/', function () use ($router) {
 $router->get('photo-albums', ['uses' => 'PhotoAlbumController@index']);
 $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
 
-$router->group(['prefix' => 'drafts', 'namespace' => 'Drafts'], function () use ($router) {
+$router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => 'auth'], function () use ($router) {
     $router->post('photo-albums', ['uses' => 'PhotoAlbumController@store']);
     $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'drafts.photoalbums.show']);
     $router->patch('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@update']);
     $router->delete('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@destroy']);
+});
+
+$router->group(['prefix' => 'auth'], function () use ($router) {
+    $router->post('user', ['uses' => 'AuthController@store']);
+    $router->post('verification', ['uses' => 'AuthController@verify']);
+    $router->post('token', ['uses' => 'AuthController@generateToken']);
+    $router->patch('token', ['uses' => 'AuthController@refreshToken', 'middleware' => 'auth']);
 });

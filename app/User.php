@@ -2,15 +2,20 @@
 
 namespace App;
 
+use Illuminate\Support\Carbon;
+use App\Mail\VerificationEmail;
+use App\VerificationCodeGenerator;
 use Illuminate\Auth\Authenticatable;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Lumen\Auth\Authorizable;
 use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract
+class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
-    use Authenticatable, Authorizable;
+    use Authenticatable, Authorizable, ObfuscatesId;
 
     /**
      * The attributes that are mass assignable.
@@ -21,14 +26,27 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'name', 'email',
     ];
 
+    protected $dates = ['verification_expires_at'];
+
     /**
-     * The attributes excluded from the model's JSON form.
+     * Get the identifier that will be stored in the subject claim of the JWT.
      *
-     * @var array
+     * @return mixed
      */
-    protected $hidden = [
-        'password',
-    ];
+    public function getJWTIdentifier()
+    {
+        return $this->obfuscatedId();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 
     /**
      * Find a user by a given email, or create a new user for that email
@@ -43,5 +61,37 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             ['email' => $email],
             ['name' => $name]
         );
+    }
+
+    /**
+     * Create a verification code for this user, and email them a verifcation
+     * URL using that code
+     */
+    public function verify()
+    {
+        $this->verification_code = app(VerificationCodeGenerator::class)->generate();
+        $this->verification_expires_at = Carbon::parse('+15 minutes');
+        $this->save();
+
+        Mail::to($this->email)->send(new VerificationEmail($this));
+    }
+
+    /**
+     * Clear the verification code when this user has been successfully verified
+     */
+    public function verified()
+    {
+        $this->verification_code = null;
+        $this->verification_expires_at = null;
+        $this->save();
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->obfuscatedId(),
+            'email' => $this->email,
+            'name' => $this->name,
+        ];
     }
 }

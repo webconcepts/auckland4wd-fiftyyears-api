@@ -23,14 +23,10 @@ class PhotoAlbumController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
-            'user.email' => 'required|email'
+            'title' => 'required'
         ]);
 
-        $user = User::firstOrCreateByEmail(
-            $request->input('user.email'),
-            $request->input('user.name')
-        );
+        $user = app('auth')->user();
 
         $album = PhotoAlbum::create([
             'title' => $request->input('title'),
@@ -38,9 +34,10 @@ class PhotoAlbumController extends Controller
         ]);
 
         return response(['data' => $album], 201)
-            ->header('Location', route('drafts.photoalbums.show', [
-                'obfuscatedId' => $album->obfuscatedId()
-            ]));
+            ->header(
+                'Location',
+                route('drafts.photoalbums.show', ['obfuscatedId' => $album->obfuscatedId()])
+            );
     }
 
     /**
@@ -48,6 +45,11 @@ class PhotoAlbumController extends Controller
      */
     public function update($obfuscatedId, Request $request)
     {
+        $album = PhotoAlbum::draft()
+            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
+
+        $this->authorize('update', $album);
+
         $validData = $this->validate($request, [
             'title' => 'nullable',
             'date' => 'nullable|date_format:"Y-m-d"',
@@ -60,9 +62,6 @@ class PhotoAlbumController extends Controller
             abort(400, 'No valid data provided');
         }
 
-        $album = PhotoAlbum::draft()
-            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
-
         $album->update($validData);
 
         return response(['data' => $album]);
@@ -74,8 +73,11 @@ class PhotoAlbumController extends Controller
     public function destroy($obfuscatedId, Request $request)
     {
         $album = PhotoAlbum::draft()
-            ->findOrFail(PhotoAlbum::actualId($obfuscatedId))
-            ->remove();
+            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
+
+        $this->authorize('destroy', $album);
+
+        $album->remove();
 
         return response('', 200);
     }

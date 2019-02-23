@@ -3,6 +3,7 @@
 use App\User;
 use App\PhotoAlbum;
 use App\IdObfuscator;
+use Tymon\JWTAuth\JWT;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -11,14 +12,17 @@ class AddDraftPhotoAlbumTest extends TestCase
     use DatabaseMigrations;
 
     /** @test **/
-    public function guest_can_create_a_valid_photo_album()
+    public function can_create_a_valid_photo_album()
     {
+        $this->withoutExceptionHandling();
+
+        $user = factory(User::class)->create([
+            'email' => 'jane@blogs.com'
+        ]);
+        app('auth')->login($user);
+
         $this->json('POST', '/drafts/photo-albums', [
-            'title' => 'Woodhill forest trip',
-            'user' => (object) [
-                'name' => 'Joe Blogs',
-                'email' => 'joe@blogs.com'
-            ]
+            'title' => 'Woodhill forest trip'
         ]);
 
         $this->seeStatusCode(201);
@@ -28,7 +32,7 @@ class AddDraftPhotoAlbumTest extends TestCase
             ]
         ]);
 
-        tap(PhotoAlbum::first(), function ($album) {
+        tap(PhotoAlbum::first(), function ($album) use ($user) {
             $this->seeHeader('Location', url('/drafts/photo-albums/'.$album->obfuscatedId()));
 
             $this->seeJson([
@@ -42,60 +46,37 @@ class AddDraftPhotoAlbumTest extends TestCase
 
             $this->assertFalse($album->isPublished());
             $this->assertEquals('Woodhill forest trip', $album->title);
-            $this->assertEquals('joe@blogs.com', $album->user->email);
-            $this->assertEquals('Joe Blogs', $album->user->name);
+            $this->assertEquals($user->id, $album->user->id);
+            $this->assertEquals('jane@blogs.com', $album->user->email);
         });
     }
 
     /** @test **/
-    public function existing_user_can_create_a_valid_photo_album()
+    public function guest_cannot_create_a_photo_album()
     {
-        $user = factory(User::class)->create([
-            'email' => 'jane@blogs.com'
-        ]);
-
         $this->json('POST', '/drafts/photo-albums', [
             'title' => 'Woodhill forest trip',
-            'user' => (object) [
-                'email' => 'jane@blogs.com'
-            ]
-        ]);
-
-        tap(PhotoAlbum::first(), function ($album) use ($user) {
-            $this->assertEquals($user->id, $album->user_id);
-            $this->assertEquals($user->email, $album->user->email);
-        });
-
-        $this->seeStatusCode(201);
-    }
-
-    /** @test **/
-    public function title_is_required()
-    {
-        $this->json('POST', '/drafts/photo-albums', [
-            'title' => '',
             'user' => (object) [
                 'name' => 'Joe Blogs',
                 'email' => 'joe@blogs.com'
             ]
         ]);
 
-        $this->seeStatusCode(422);
-        $this->assertJsonHasKey('title');
+        $this->seeStatusCode(401);
+
+        $this->assertEquals(0, PhotoAlbum::count());
     }
 
     /** @test **/
-    public function user_email_is_required()
+    public function title_is_required()
     {
+        app('auth')->login(factory(User::class)->create());
+
         $this->json('POST', '/drafts/photo-albums', [
-            'title' => 'Woodhill forest trip',
-            'user' => (object) [
-                'name' => 'Joe Blogs',
-                'email' => ''
-            ]
+            'title' => ''
         ]);
 
         $this->seeStatusCode(422);
-        $this->assertJsonHasKey('user.email');
+        $this->assertJsonHasKey('title');
     }
 }
