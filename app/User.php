@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\PhotoAlbum;
 use Illuminate\Support\Carbon;
 use App\Mail\VerificationEmail;
 use App\VerificationCodeGenerator;
@@ -27,6 +28,21 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
 
     protected $dates = ['verification_expires_at'];
+
+    public function photoAlbums()
+    {
+        return $this->hasMany(PhotoAlbum::class);
+    }
+
+    public function draftPhotoAlbums()
+    {
+        return $this->hasMany(PhotoAlbum::class)->draft();
+    }
+
+    public function publishedPhotoAlbums()
+    {
+        return $this->hasMany(PhotoAlbum::class)->published();
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.

@@ -20,9 +20,8 @@ class RetrievePhotoAlbumTest extends TestCase
             'photographer' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ]);
-        $obfuscatedId = app(IdObfuscator::class)->encode($album->id);
 
-        $this->json('GET', '/photo-albums/'.$obfuscatedId);
+        $this->json('GET', '/photo-albums/'.$album->obfuscatedId());
 
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
@@ -31,7 +30,7 @@ class RetrievePhotoAlbumTest extends TestCase
             ]
         ]);
         $this->seeJson([
-            'id' => $obfuscatedId,
+            'id' => $album->obfuscatedId(),
             'title' => 'Woodhill forest trip',
             'date' => '1995-11-12',
             'location' => 'Woodhill forest',
@@ -45,7 +44,7 @@ class RetrievePhotoAlbumTest extends TestCase
     {
         $album = factory(PhotoAlbum::class)->states('draft')->create();
 
-        $this->json('GET', '/photo-albums/'.$album->id);
+        $this->json('GET', '/photo-albums/'.$album->obfuscatedId());
 
         $this->seeStatusCode(404);
     }

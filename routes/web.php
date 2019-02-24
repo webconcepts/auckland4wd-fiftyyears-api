@@ -19,6 +19,7 @@ $router->get('photo-albums', ['uses' => 'PhotoAlbumController@index']);
 $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
 
 $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => 'auth'], function () use ($router) {
+    $router->get('photo-albums', ['uses' => 'PhotoAlbumController@index']);
     $router->post('photo-albums', ['uses' => 'PhotoAlbumController@store']);
     $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'drafts.photoalbums.show']);
     $router->patch('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@update']);

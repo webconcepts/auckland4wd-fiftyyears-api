@@ -34,6 +34,9 @@ class AuthServiceProvider extends ServiceProvider
         //         return true;
         //     }
         // });
+        Gate::define('show-draft', function ($user, $object) {
+            return $user->id == $object->user_id;
+        });
         Gate::define('update', function ($user, $object) {
             return $user->id == $object->user_id;
         });

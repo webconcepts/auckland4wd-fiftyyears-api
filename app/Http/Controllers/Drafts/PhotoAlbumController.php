@@ -6,15 +6,29 @@ use App\User;
 use App\PhotoAlbum;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class PhotoAlbumController extends Controller
 {
+    /**
+     * Retrieve a list of photo albums
+     */
+    public function index()
+    {
+        return ['data' => Auth::user()->draftPhotoAlbums()->get()];
+    }
+
     /**
      * Retrieve an individual draft photo album
      */
     public function show($obfuscatedId)
     {
-        //
+        $album = PhotoAlbum::draft()
+            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
+
+        $this->authorize('show-draft', $album);
+
+        return ['data' => $album];
     }
 
     /**
@@ -26,11 +40,9 @@ class PhotoAlbumController extends Controller
             'title' => 'required'
         ]);
 
-        $user = app('auth')->user();
-
         $album = PhotoAlbum::create([
             'title' => $request->input('title'),
-            'user_id' => $user->id
+            'user_id' => Auth::user()->id
         ]);
 
         return response(['data' => $album], 201)
@@ -64,7 +76,7 @@ class PhotoAlbumController extends Controller
 
         $album->update($validData);
 
-        return response(['data' => $album]);
+        return ['data' => $album];
     }
 
     /**
