@@ -68,6 +68,19 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
     }
 
     /** @test **/
+    public function can_retrieve_someone_elses_draft_photo_album_as_an_editor()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
+
+        // log in as someone else, not owner of this album
+        app('auth')->login(factory(User::class)->states('editor')->create());
+
+        $this->json('GET', '/drafts/photo-albums/'.$album->obfuscatedId());
+
+        $this->seeStatusCode(200);
+    }
+
+    /** @test **/
     public function can_retrieve_a_list_of_only_draft_photo_albums()
     {
         $this->withoutExceptionHandling();

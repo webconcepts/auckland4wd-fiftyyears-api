@@ -66,4 +66,15 @@ class RemoveDraftPhotoAlbumTest extends TestCase
 
         $this->seeStatusCode(401);
     }
+
+    /** @test **/
+    public function can_remove_someone_elses_album_as_an_editor()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        app('auth')->login(factory(User::class)->states('editor')->create());
+
+        $this->json('DELETE', '/drafts/photo-albums/'.$album->obfuscatedId());
+
+        $this->seeStatusCode(200);
+    }
 }

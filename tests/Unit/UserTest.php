@@ -54,4 +54,17 @@ class UserTest extends TestCase
         $this->assertEquals($user->id, $foundUser->id);
         $this->assertTrue($foundUser->is($user));
     }
+
+    /** @test **/
+    public function user_can_be_an_editor()
+    {
+        $user = factory(User::class)->create();
+
+        $this->assertFalse($user->isEditor());
+
+        $user->editor = true;
+        $user->save();
+
+        $this->assertTrue($user->fresh()->isEditor());
+    }
 }

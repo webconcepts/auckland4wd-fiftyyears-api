@@ -23,12 +23,7 @@ class PhotoAlbumController extends Controller
      */
     public function show($obfuscatedId)
     {
-        $album = PhotoAlbum::draft()
-            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
-
-        $this->authorize('show-draft', $album);
-
-        return ['data' => $album];
+        return ['data' => $this->getAlbum($obfuscatedId)];
     }
 
     /**
@@ -46,10 +41,7 @@ class PhotoAlbumController extends Controller
         ]);
 
         return response(['data' => $album], 201)
-            ->header(
-                'Location',
-                route('drafts.photoalbums.show', ['obfuscatedId' => $album->obfuscatedId()])
-            );
+            ->header('Location', route('drafts.photoalbums.show', ['obfuscatedId' => $album->obfuscatedId()]));
     }
 
     /**
@@ -57,10 +49,7 @@ class PhotoAlbumController extends Controller
      */
     public function update($obfuscatedId, Request $request)
     {
-        $album = PhotoAlbum::draft()
-            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
-
-        $this->authorize('update', $album);
+        $album = $this->getAlbum($obfuscatedId);
 
         $album->update($this->validDataOrAbort($request, [
             'title' => 'nullable',
@@ -78,13 +67,23 @@ class PhotoAlbumController extends Controller
      */
     public function destroy($obfuscatedId, Request $request)
     {
+        $this->getAlbum($obfuscatedId)
+            ->remove();
+    }
+
+    /**
+     * Get the album and check the user is authorized to edit it
+     *
+     * @param int $obfuscatedId
+     * @return App\PhotoAlbum
+     */
+    protected function getAlbum($obfuscatedId)
+    {
         $album = PhotoAlbum::draft()
             ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
 
-        $this->authorize('destroy', $album);
+        $this->authorize('edit', $album);
 
-        $album->remove();
-
-        return response('', 200);
+        return $album;
     }
 }

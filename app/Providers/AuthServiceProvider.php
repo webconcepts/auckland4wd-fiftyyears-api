@@ -29,18 +29,12 @@ class AuthServiceProvider extends ServiceProvider
             return app('auth')->setRequest($request)->user();
         });
 
-        // Gate::before(function ($user, $ability) {
-        //     if ($user->isEditor()) {
-        //         return true;
-        //     }
-        // });
-        Gate::define('show-draft', function ($user, $object) {
-            return $user->id == $object->user_id;
+        Gate::before(function ($user, $ability) {
+            if ($user->isEditor()) {
+                return true;
+            }
         });
-        Gate::define('update', function ($user, $object) {
-            return $user->id == $object->user_id;
-        });
-        Gate::define('destroy', function ($user, $object) {
+        Gate::define('edit', function ($user, $object) {
             return $user->id == $object->user_id;
         });
     }

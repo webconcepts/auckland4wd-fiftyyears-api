@@ -20,6 +20,12 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
     ];
 });
 
+$factory->state(App\User::class, 'editor', function ($faker) {
+    return [
+        'editor' => true,
+    ];
+});
+
 $factory->define(App\PhotoAlbum::class, function (Faker\Generator $faker) {
     return  [
         'user_id' => factory(App\User::class)->create()->id,

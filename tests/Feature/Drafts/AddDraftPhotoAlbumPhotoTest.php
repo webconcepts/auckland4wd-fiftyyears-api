@@ -95,6 +95,22 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     }
 
     /** @test **/
+    public function can_create_a_photo_record_for_somebody_elses_album_when_an_editor()
+    {
+        $album = factory(PhotoAlbum::class)->state('draft')->create();
+
+        Auth::login(factory(User::class)->state('editor')->create());
+
+        $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
+            'filename' => 'photo123.jpg',
+            'type' => 'image/jpeg',
+            'number' => 1,
+        ]);
+
+        $this->seeStatusCode(201);
+    }
+
+    /** @test **/
     public function filename_is_required()
     {
         $album = factory(PhotoAlbum::class)->state('draft')->create();

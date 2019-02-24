@@ -66,6 +66,7 @@ class PhotoAlbumPhotoController extends Controller
 
     /**
      * Get the album and check the user is authorized to update it
+     * Get the album and check the user is authorized to edit it
      *
      * @param int $obfuscatedAlbumId
      * @return App\PhotoAlbum
@@ -75,7 +76,7 @@ class PhotoAlbumPhotoController extends Controller
         $album = PhotoAlbum::draft()
             ->findOrFail(PhotoAlbum::actualId($obfuscatedAlbumId));
 
-        $this->authorize('update', $album);
+        $this->authorize('edit', $album);
 
         return $album;
     }

@@ -80,6 +80,16 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
+     * Is this user an editor
+     *
+     * @return bool
+     */
+    public function isEditor()
+    {
+        return (bool) $this->editor;
+    }
+
+    /**
      * Create a verification code for this user, and email them a verifcation
      * URL using that code
      */

@@ -146,4 +146,19 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->seeStatusCode(403);
     }
+
+    /** @test **/
+    public function can_update_a_photo_record_for_somebody_elses_album_as_an_editor()
+    {
+        $photo = factory(Photo::class)->state('not-uploaded')->create();
+        $album = $photo->photoAlbum;
+
+        Auth::login(factory(User::class)->states('editor')->create()); // log in as someone else
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos/'.$photo->obfuscatedId(), [
+            'description' => 'This is a new description'
+        ]);
+
+        $this->seeStatusCode(200);
+    }
 }
