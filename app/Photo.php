@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\PhotoSaved;
 use Illuminate\Database\Eloquent\Model;
 
 class Photo extends Model
@@ -10,6 +11,10 @@ class Photo extends Model
 
     protected $guarded = [];
 
+    protected $dispatchesEvents = [
+        'saved' => PhotoSaved::class,
+    ];
+
     /**
      * @var array $types accepted values for type
      */
@@ -17,7 +22,7 @@ class Photo extends Model
         1 => 'image/jpeg'
     ];
 
-    public function album()
+    public function photoAlbum()
     {
         return $this->belongsTo(PhotoAlbum::class);
     }
@@ -74,7 +79,8 @@ class Photo extends Model
         return [
             'id' => $this->obfuscatedId(),
             'number' => $this->number,
-            'uploaded' => $this->isUploaded()
+            'uploaded' => $this->isUploaded(),
+            'description' => $this->description,
         ];
     }
 }

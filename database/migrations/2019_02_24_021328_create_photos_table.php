@@ -21,6 +21,7 @@ class CreatePhotosTable extends Migration
             $table->integer('number');
             $table->tinyInteger('type')->unsigned();
             $table->string('original_filename');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

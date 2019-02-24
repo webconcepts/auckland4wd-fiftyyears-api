@@ -18,16 +18,13 @@ class PhotoAlbumPhotoController extends Controller
      */
     public function store($obfuscatedAlbumId, Request $request, S3DirectUpload $upload)
     {
+        $album = $this->getAlbum($obfuscatedAlbumId);
+
         $this->validate($request, [
             'filename' => 'required',
             'type' => ['required', Rule::in(Photo::types())],
-            'number' => 'required|integer',
+            'number' => ['required', 'integer', Rule::notIn($album->photos()->pluck('number'))]
         ]);
-
-        $album = PhotoAlbum::draft()
-            ->findOrFail(PhotoAlbum::actualId($obfuscatedAlbumId));
-
-        $this->authorize('update', $album);
 
         $photo = $album->photos()->create([
             'uploaded_by_id' => Auth::id(),
@@ -47,5 +44,39 @@ class PhotoAlbumPhotoController extends Controller
                 'data' => $upload->getRequestData(),
             ],
         ], 201);
+    }
+
+    /**
+     * Update a photo's description, number, or uploaded status for this album
+     */
+    public function update($obfuscatedAlbumId, $obfuscatedId, Request $request)
+    {
+        $photo = $this->getAlbum($obfuscatedAlbumId)
+            ->photos()
+            ->findOrFail(Photo::actualId($obfuscatedId));
+
+        $photo->update($this->validDataOrAbort($request, [
+            'description' => 'nullable',
+            'number' => 'integer|nullable',
+            'uploaded' => 'boolean|nullable',
+        ]));
+
+        return ['data' => $photo];
+    }
+
+    /**
+     * Get the album and check the user is authorized to update it
+     *
+     * @param int $obfuscatedAlbumId
+     * @return App\PhotoAlbum
+     */
+    protected function getAlbum($obfuscatedAlbumId)
+    {
+        $album = PhotoAlbum::draft()
+            ->findOrFail(PhotoAlbum::actualId($obfuscatedAlbumId));
+
+        $this->authorize('update', $album);
+
+        return $album;
     }
 }

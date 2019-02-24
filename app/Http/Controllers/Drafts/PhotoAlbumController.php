@@ -62,19 +62,13 @@ class PhotoAlbumController extends Controller
 
         $this->authorize('update', $album);
 
-        $validData = $this->validate($request, [
+        $album->update($this->validDataOrAbort($request, [
             'title' => 'nullable',
             'date' => 'nullable|date_format:"Y-m-d"',
             'location' => 'nullable',
             'photographer' => 'nullable',
             'description' => 'nullable',
-        ]);
-
-        if (empty($validData)) {
-            abort(400, 'No valid data provided');
-        }
-
-        $album->update($validData);
+        ]));
 
         return ['data' => $album];
     }

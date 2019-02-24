@@ -175,4 +175,23 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
         $this->seeStatusCode(422);
         $this->assertJsonHasKey('number');
     }
+
+    /** @test **/
+    public function number_must_be_unique_within_album()
+    {
+        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        factory(Photo::class)->create(['number' => 12, 'photo_album_id' => $album->id]);
+        factory(Photo::class)->create(['number' => 24, 'photo_album_id' => $album->id]);
+
+        Auth::login($album->user);
+
+        $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
+            'filename' => 'photo123.jpg',
+            'type' => 'image/jpeg',
+            'number' => 12,
+        ]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('number');
+    }
 }

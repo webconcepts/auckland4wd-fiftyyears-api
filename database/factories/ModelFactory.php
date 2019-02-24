@@ -51,3 +51,27 @@ $factory->state(App\PhotoAlbum::class, 'removed', function ($faker) {
         'removed_at' => Carbon::parse('-1 day'),
     ];
 });
+
+$factory->define(App\Photo::class, function (Faker\Generator $faker) {
+    return  [
+        'photo_album_id' => factory(App\PhotoAlbum::class)->state('draft')->create()->id,
+        'uploaded_by_id' => factory(App\User::class)->create()->id,
+        'type' => 'image/jpeg',
+        'number' => 24,
+        'uploaded' => false,
+        'original_filename' => 'photo123.jpg',
+        // 'description' => '<p>This is an example description.</p><p>It could contain html and multiple paragraphs</p>',
+    ];
+});
+
+$factory->state(App\Photo::class, 'uploaded', function ($faker) {
+    return [
+        'uploaded' => true,
+    ];
+});
+
+$factory->state(App\Photo::class, 'not-uploaded', function ($faker) {
+    return [
+        'uploaded' => false,
+    ];
+});
