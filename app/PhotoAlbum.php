@@ -19,7 +19,7 @@ class PhotoAlbum extends Model
 
     public function photos()
     {
-        return $this->hasMany(Photo::class);
+        return $this->hasMany(Photo::class)->whereNull('removed_at');
     }
 
     public function scopePublished($query)

@@ -161,4 +161,23 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->seeStatusCode(200);
     }
+
+    /** @test **/
+    public function cannot_update_a_removed_photo_record()
+    {
+        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $photo = factory(Photo::class)->state('not-uploaded')->create([
+            'photo_album_id' => $album->id
+        ]);
+
+        $photo->remove();
+
+        Auth::login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos/'.$photo->obfuscatedId(), [
+            'description' => 'This is a new description'
+        ]);
+
+        $this->seeStatusCode(404);
+    }
 }

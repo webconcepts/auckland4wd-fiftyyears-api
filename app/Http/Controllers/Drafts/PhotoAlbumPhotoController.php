@@ -65,7 +65,17 @@ class PhotoAlbumPhotoController extends Controller
     }
 
     /**
-     * Get the album and check the user is authorized to update it
+     * Remove a photo from this draft photo album
+     */
+    public function destroy($obfuscatedAlbumId, $obfuscatedId, Request $request)
+    {
+        $this->getAlbum($obfuscatedAlbumId)
+            ->photos()
+            ->findOrFail(Photo::actualId($obfuscatedId))
+            ->remove();
+    }
+
+    /**
      * Get the album and check the user is authorized to edit it
      *
      * @param int $obfuscatedAlbumId

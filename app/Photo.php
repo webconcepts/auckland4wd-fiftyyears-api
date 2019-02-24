@@ -65,6 +65,24 @@ class Photo extends Model
     }
 
     /**
+     * @return bool true if removed
+     */
+    public function isRemoved()
+    {
+        return $this->removed_at !== null;
+    }
+
+    /**
+     * Remove this photo. Sets removed_at date and persists to db
+     */
+    public function remove()
+    {
+        if ($this->photoAlbum->isDraft()) {
+            $this->update(['removed_at' => $this->freshTimestamp()]);
+        }
+    }
+
+    /**
      * Get the S3 key (path and filename) for this photo
      *
      * @return string
