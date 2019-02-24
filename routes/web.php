@@ -24,6 +24,10 @@ $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => '
     $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'drafts.photoalbums.show']);
     $router->patch('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@update']);
     $router->delete('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@destroy']);
+
+    $router->group(['prefix' => 'photo-albums/{obfuscatedAlbumId}'], function () use ($router) {
+        $router->post('photos', ['uses' => 'PhotoAlbumPhotoController@store']);
+    });
 });
 
 $router->group(['prefix' => 'auth'], function () use ($router) {

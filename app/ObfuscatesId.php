@@ -7,9 +7,9 @@ namespace App;
  */
 trait ObfuscatesId
 {
-    public function obfuscatedId()
+    public function obfuscatedId($field = 'id')
     {
-        return app(IdObfuscator::class)->encode($this->id);
+        return app(IdObfuscator::class)->encode($this->$field);
     }
 
     public static function actualId($obfuscatedId)

@@ -27,5 +27,9 @@
         <env name="OPTIMUS_PRIME" value="961472683"/>
         <env name="OPTIMUS_INVERSE" value="1772474883"/>
         <env name="OPTIMUS_RANDOM" value="471565496"/>
+        <env name="AWS_ACCESS_KEY" value="thisisnotanaccesskey"/>
+        <env name="AWS_SECRET" value="thisisnotasecret"/>
+        <env name="AWS_S3_BUCKET" value="test-bucket-name"/>
+        <env name="AWS_S3_BUCKET_REGION" value="ap-southeast-2"/>
     </php>
 </phpunit>

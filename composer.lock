@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "51bcc55cd3554c7bef1d0d2dfd295320",
+    "content-hash": "aeab2cf9846203feed03402356d4df41",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -175,6 +175,55 @@
                 "schedule"
             ],
             "time": "2018-06-06T03:12:17+00:00"
+        },
+        {
+            "name": "eddturtle/direct-upload",
+            "version": "v1.6.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eddturtle/direct-upload.git",
+                "reference": "73d18a058101d9606911331a52fa9ec4eb62f5da"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eddturtle/direct-upload/zipball/73d18a058101d9606911331a52fa9ec4eb62f5da",
+                "reference": "73d18a058101d9606911331a52fa9ec4eb62f5da",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~5.5|~7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EddTurtle\\DirectUpload\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Edd Turtle",
+                    "email": "edd@designedbyaturtle.co.uk",
+                    "homepage": "https://www.designedbyaturtle.co.uk"
+                }
+            ],
+            "description": "Composer Package to build an AWS Signature ready to Direct Upload to S3",
+            "keywords": [
+                "amazon",
+                "aws",
+                "direct",
+                "php",
+                "s3",
+                "signature",
+                "upload"
+            ],
+            "time": "2017-11-02T19:41:03+00:00"
         },
         {
             "name": "egulias/email-validator",

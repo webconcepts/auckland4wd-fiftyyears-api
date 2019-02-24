@@ -35,12 +35,18 @@ abstract class TestCase extends Laravel\Lumen\Testing\TestCase
     /**
      * Get the original data value returned to the response from the controller
      *
-     * @param mixed $key
+     * @param mixed $key single key, or . separated for checking multi level
      * @return mixed value
      */
     protected function responseData($key)
     {
-        return $this->response->getOriginalContent()[$key];
+        $data = $this->response->getOriginalContent();
+
+        foreach (explode('.', $key) as $k) {
+            $data = $data[$k];
+        }
+
+        return $data;
     }
 
     /**
