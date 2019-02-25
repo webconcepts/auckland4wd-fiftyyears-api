@@ -13,6 +13,32 @@ use Illuminate\Support\Facades\Auth;
 class PhotoAlbumPhotoController extends Controller
 {
     /**
+     * Get a list of photos for this draft photo album that are uploaded and
+     * not removed.
+     */
+    public function index($obfuscatedAlbumId, Request $request)
+    {
+        return [
+            'data' => $this->getAlbum($obfuscatedAlbumId)
+                ->photos()
+                ->uploaded()
+                ->get()
+        ];
+    }
+
+    /**
+     * Get a photo record for this draft photo album.
+     */
+    public function show($obfuscatedAlbumId, $obfuscatedId, Request $request)
+    {
+        return [
+            'data' => $this->getAlbum($obfuscatedAlbumId)
+                ->photos()
+                ->findOrFail(Photo::actualId($obfuscatedId))
+        ];
+    }
+
+    /**
      * Create a new photo record for this album, and return the AWS request data
      * needed to upload the file direct to S3
      */

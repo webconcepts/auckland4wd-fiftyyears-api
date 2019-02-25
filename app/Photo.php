@@ -32,6 +32,11 @@ class Photo extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function scopeUploaded($query)
+    {
+        return $query->where('uploaded', true);
+    }
+
     public function getTypeAttribute($value)
     {
         return self::types()->get($value);
@@ -96,7 +101,7 @@ class Photo extends Model
     {
         return [
             'id' => $this->obfuscatedId(),
-            'number' => $this->number,
+            'number' => (int) $this->number,
             'uploaded' => $this->isUploaded(),
             'description' => $this->description,
         ];

@@ -26,7 +26,9 @@ $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => '
     $router->delete('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@destroy']);
 
     $router->group(['prefix' => 'photo-albums/{obfuscatedAlbumId}'], function () use ($router) {
+        $router->get('photos', ['uses' => 'PhotoAlbumPhotoController@index']);
         $router->post('photos', ['uses' => 'PhotoAlbumPhotoController@store']);
+        $router->get('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@show', 'as' => 'drafts.photoalbums.photo.show']);
         $router->patch('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@update']);
         $router->delete('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@destroy']);
     });

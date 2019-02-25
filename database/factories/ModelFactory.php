@@ -81,3 +81,9 @@ $factory->state(App\Photo::class, 'not-uploaded', function ($faker) {
         'uploaded' => false,
     ];
 });
+
+$factory->state(App\Photo::class, 'removed', function ($faker) {
+    return [
+        'removed_at' => Carbon::parse('-1 day'),
+    ];
+});
