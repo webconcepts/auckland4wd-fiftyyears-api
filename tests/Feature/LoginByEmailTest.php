@@ -61,6 +61,7 @@ class LoginByEmailTest extends TestCase
         $this->json('POST', '/auth/user', ['email' => 'joe@blogs.com']);
 
         $this->seeStatusCode(201);
+        $this->seeHeader('x-access_token', 'TEST_JWT_TOKEN');
 
         $this->seeJsonStructure([
             'access_token',
@@ -140,6 +141,8 @@ class LoginByEmailTest extends TestCase
         ]);
 
         $this->seeStatusCode(201);
+        $this->seeHeader('x-access_token', 'TEST_JWT_TOKEN');
+
         $this->seeJsonStructure([
             'access_token',
             'token_type',
@@ -170,6 +173,7 @@ class LoginByEmailTest extends TestCase
         ]);
 
         $this->seeStatusCode(404);
+        $this->assertFalse($this->response->headers->has('x-access_token'));
     }
 
     /** @test **/
@@ -188,6 +192,7 @@ class LoginByEmailTest extends TestCase
         ]);
 
         $this->seeStatusCode(410);
+        $this->assertFalse($this->response->headers->has('x-access_token'));
 
         // new verification code created
         tap($user->fresh(), function ($user) {
@@ -216,6 +221,7 @@ class LoginByEmailTest extends TestCase
         $this->json('POST', '/auth/token', []);
 
         $this->seeStatusCode(422);
+        $this->assertFalse($this->response->headers->has('x-access_token'));
     }
 
     /** @test **/
@@ -231,6 +237,11 @@ class LoginByEmailTest extends TestCase
         ]);
 
         $this->seeStatusCode(201);
+
+        $newToken = $this->response->headers->get('x-access_token');
+        $this->assertNotEmpty($newToken);
+        $this->assertNotSame($newToken, $token);
+
         $this->seeJsonStructure([
             'access_token',
             'token_type',
@@ -255,5 +266,6 @@ class LoginByEmailTest extends TestCase
         ]);
 
         $this->seeStatusCode(401);
+        $this->assertFalse($this->response->headers->has('x-access_token'));
     }
 }

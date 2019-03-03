@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Exception;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
 class Authenticate
@@ -35,10 +36,26 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
+        $newToken = null;
+
         if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+            // attempt refresh
+            try {
+                if (!$newToken = $this->auth->refresh()) {
+                    throw new Exception();
+                }
+            } catch (Exception $e) {
+                return response('Unauthorized.', 401);
+            }
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        // if token was refreshed, add to response in header
+        if ($newToken) {
+            return $response->header('x-access_token', $newToken);
+        } else {
+            return $response;
+        }
     }
 }

@@ -51,7 +51,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function getJWTIdentifier()
     {
-        return $this->obfuscatedId();
+        return $this->id;
     }
 
     /**

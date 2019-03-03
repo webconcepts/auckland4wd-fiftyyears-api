@@ -83,11 +83,14 @@ class AuthController extends Controller
 
     protected function tokenResponse($token, User $user, $statusCode)
     {
-        return response([
+        $data = [
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => app('auth')->factory()->getTTL() * 60,
             'user' => $user->toArray(),
-        ], $statusCode);
+        ];
+
+        return response($data, $statusCode)
+            ->header('x-access_token', $token);
     }
 }
