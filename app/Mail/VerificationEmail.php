@@ -19,6 +19,8 @@ class VerificationEmail extends Mailable
     public function build()
     {
         return $this->view('emails.verification-email')
-            ->subject("Login - Auckland 4WD Club, fifty years");
+            ->text('emails.verification-email_plain')
+            ->with(['verificationCode' => $this->user->verification_code])
+            ->subject('Fifty years of the Auckland 4WD Club, Login');
     }
 }
