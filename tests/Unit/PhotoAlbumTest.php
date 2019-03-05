@@ -103,6 +103,9 @@ class PhotoAlbumTest extends TestCase
         $album = factory(PhotoAlbum::class)->create([
             'title' => 'Woodhill forest trip',
             'date' => Carbon::parse('November 12, 1995'),
+            'approx_day' => 12,
+            'approx_month' => 11,
+            'approx_year' => 1995,
             'location' => 'Woodhill forest',
             'photographer' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
@@ -119,9 +122,28 @@ class PhotoAlbumTest extends TestCase
             'id' => 'OBFUSCATEDID1',
             'title' => 'Woodhill forest trip',
             'date' => '1995-11-12',
+            'approx_day' => 12,
+            'approx_month' => 11,
+            'approx_year' => 1995,
             'location' => 'Woodhill forest',
             'photographer' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ], $result);
+    }
+
+    /** @test **/
+    public function approximate_date_values_should_return_null_not_0_when_converting_to_array()
+    {
+        $album = factory(PhotoAlbum::class)->create([
+            'approx_day' => null,
+            'approx_month' => null,
+            'approx_year' => null,
+        ]);
+
+        $result = $album->toArray();
+
+        $this->assertEquals(null, $result['approx_day']);
+        $this->assertEquals(null, $result['approx_month']);
+        $this->assertEquals(null, $result['approx_year']);
     }
 }

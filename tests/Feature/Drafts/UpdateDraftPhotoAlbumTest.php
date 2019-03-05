@@ -15,6 +15,9 @@ class UpdateDraftPhotoAlbumTest extends TestCase
         $album = factory(PhotoAlbum::class)->states('draft')->create([
             'title' => 'Original title',
             'date' => '1990-01-01',
+            'approx_day' => 1,
+            'approx_month' => 1,
+            'approx_year' => 1990,
             'location' => 'Original location',
             'photographer' => 'Original photographer',
             'description' => '<p>Original description</p>'
@@ -24,6 +27,9 @@ class UpdateDraftPhotoAlbumTest extends TestCase
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'title' => 'New title',
             'date' => '2018-12-31',
+            'approx_day' => '31',
+            'approx_month' => '12',
+            'approx_year' => '2018',
             'location' => 'New location',
             'photographer' => 'New photographer',
             'description' => '<p>New description</p>',
@@ -33,13 +39,16 @@ class UpdateDraftPhotoAlbumTest extends TestCase
 
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location', 'photographer', 'description'
             ]
         ]);
         $this->seeJson([
             'id' => $album->obfuscatedId(),
             'title' => 'New title',
             'date' => '2018-12-31',
+            'approx_day' => 31,
+            'approx_month' => 12,
+            'approx_year' => 2018,
             'location' => 'New location',
             'photographer' => 'New photographer',
             'description' => '<p>New description</p>',
@@ -48,6 +57,9 @@ class UpdateDraftPhotoAlbumTest extends TestCase
         tap($album->fresh(), function ($album) {
             $this->assertEquals('New title', $album->title);
             $this->assertEquals('2018-12-31', $album->date->toDateString());
+            $this->assertEquals(31, $album->approx_day);
+            $this->assertEquals(12, $album->approx_month);
+            $this->assertEquals(2018, $album->approx_year);
             $this->assertEquals('New location', $album->location);
             $this->assertEquals('New photographer', $album->photographer);
             $this->assertEquals('<p>New description</p>', $album->description);
@@ -113,6 +125,176 @@ class UpdateDraftPhotoAlbumTest extends TestCase
 
         $this->seeStatusCode(422);
         $this->assertJsonHasKey('date');
+    }
+
+    /** @test **/
+    public function can_update_approx_day()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
+            'approx_day' => 2
+        ]);
+        app('auth')->login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_day' => '15'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals(15, $album->fresh()->approx_day);
+    }
+
+    /** @test **/
+    public function approx_day_must_be_between_1_and_31()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        app('auth')->login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_day' => '0'
+        ]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('approx_day');
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_day' => '32'
+        ]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('approx_day');
+    }
+
+    /** @test **/
+    public function can_update_approx_month()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
+            'approx_month' => 4
+        ]);
+        app('auth')->login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_month' => '11'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals(11, $album->fresh()->approx_month);
+    }
+
+    /** @test **/
+    public function approx_month_must_be_between_1_and_12()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        app('auth')->login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_month' => '0'
+        ]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('approx_month');
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_month' => '13'
+        ]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('approx_month');
+    }
+
+    /** @test **/
+    public function can_update_approx_year()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
+            'approx_year' => 1995
+        ]);
+        app('auth')->login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_year' => '2001'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals(2001, $album->fresh()->approx_year);
+    }
+
+    /** @test **/
+    public function approx_year_must_be_between_1969_and_2019()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        app('auth')->login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_year' => '1968'
+        ]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('approx_year');
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_year' => '2020'
+        ]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('approx_year');
+    }
+
+    /** @test **/
+    public function updating_approximate_date_values_updates_date_for_non_editors()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
+            'date' => '1990-11-24',
+            'approx_day' => null,
+            'approx_month' => null,
+            'approx_year' => null,
+        ]);
+        app('auth')->login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_year' => '2001'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals('2001-01-01', $album->fresh()->date->toDateString());
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_month' => '5'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals('2001-05-01', $album->fresh()->date->toDateString());
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_day' => '13'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals('2001-05-13', $album->fresh()->date->toDateString());
+    }
+
+    /** @test **/
+    public function updating_approximate_date_will_not_update_date_for_an_editor()
+    {
+        $user = factory(User::class)->states('editor')->create();
+        $album = factory(PhotoAlbum::class)->states('draft')->create([
+            'user_id' => $user->id,
+            'date' => '1990-11-24',
+            'approx_day' => 24,
+            'approx_month' => 11,
+            'approx_year' => 1990,
+        ]);
+        app('auth')->login($user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
+            'approx_year' => '2001',
+            'approx_month' => '12',
+            'approx_day' => '2'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals('1990-11-24', $album->fresh()->date->toDateString());
+        $this->assertEquals(2, $album->fresh()->approx_day);
+        $this->assertEquals(12, $album->fresh()->approx_month);
+        $this->assertEquals(2001, $album->fresh()->approx_year);
     }
 
     /** @test **/

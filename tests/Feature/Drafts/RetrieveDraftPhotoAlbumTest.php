@@ -17,6 +17,9 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
         $album = factory(PhotoAlbum::class)->states('draft')->create([
             'title' => 'Woodhill forest trip',
             'date' => Carbon::parse('November 12, 1995'),
+            'approx_day' => 12,
+            'approx_month' => 11,
+            'approx_year' => 1995,
             'location' => 'Woodhill forest',
             'photographer' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
@@ -29,13 +32,16 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location', 'photographer', 'description'
             ]
         ]);
         $this->seeJson([
             'id' => $album->obfuscatedId(),
             'title' => 'Woodhill forest trip',
             'date' => '1995-11-12',
+            'approx_day' => 12,
+            'approx_month' => 11,
+            'approx_year' => 1995,
             'location' => 'Woodhill forest',
             'photographer' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',

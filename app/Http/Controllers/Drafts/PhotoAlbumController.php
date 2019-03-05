@@ -51,13 +51,27 @@ class PhotoAlbumController extends Controller
     {
         $album = $this->getAlbum($obfuscatedId);
 
-        $album->update($this->validDataOrAbort($request, [
+        $validData = collect($this->validDataOrAbort($request, [
             'title' => 'nullable',
             'date' => 'nullable|date_format:"Y-m-d"',
+            'approx_day' => 'nullable|integer|between:1,31',
+            'approx_month' => 'nullable|integer|between:1,12',
+            'approx_year' => 'nullable|integer|between:1969,2019',
             'location' => 'nullable',
             'photographer' => 'nullable',
             'description' => 'nullable',
         ]));
+
+        $album->update($validData->all());
+
+        $givenApproximateDate = $validData
+            ->only(['approx_day', 'approx_month', 'approx_year'])
+            ->count();
+
+        if (!Auth::user()->isEditor() && !$album->wasChanged('date') && $givenApproximateDate) {
+            $album->setDateFromApproximateDate()
+                ->save();
+        }
 
         return ['data' => $album];
     }

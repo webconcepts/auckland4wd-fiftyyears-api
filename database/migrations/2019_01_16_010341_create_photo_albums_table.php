@@ -18,6 +18,9 @@ class CreatePhotoAlbumsTable extends Migration
             $table->unsignedInteger('user_id');
             $table->string('title');
             $table->date('date')->nullable();
+            $table->integer('approx_day')->nullable();
+            $table->integer('approx_month')->nullable();
+            $table->integer('approx_year')->nullable();
             $table->string('location')->nullable();
             $table->string('photographer')->nullable();
             $table->text('description')->nullable();

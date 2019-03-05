@@ -90,12 +90,35 @@ class PhotoAlbum extends Model
         }
     }
 
+    /**
+     * Set the value of this albums date, from the approx_day, approx_month
+     * and approx_year values.
+     *
+     * @return $this
+     */
+    public function setDateFromApproximateDate()
+    {
+        if ($this->approx_year) {
+            $this->date = sprintf(
+                '%s-%s-%s',
+                $this->approx_year,
+                $this->approx_month ? $this->approx_month : '01',
+                $this->approx_day ? $this->approx_day : '01'
+            );
+        }
+
+        return $this;
+    }
+
     public function toArray()
     {
         return [
             'id' => $this->obfuscatedId(),
             'title' => $this->title,
             'date' => ($this->date) ? $this->date->toDateString() : null, // yyyy-mm-dd
+            'approx_day' => $this->approx_day ? (int) $this->approx_day : null,
+            'approx_month' => $this->approx_month ? (int) $this->approx_month : null,
+            'approx_year' => $this->approx_year ? (int) $this->approx_year : null,
             'location' => $this->location,
             'photographer' => $this->photographer,
             'description' => $this->description,
