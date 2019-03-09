@@ -22,6 +22,7 @@ class PhotoAlbumPhotoController extends Controller
             'data' => $this->getAlbum($obfuscatedAlbumId)
                 ->photos()
                 ->uploaded()
+                ->orderBy('number')
                 ->get()
         ];
     }

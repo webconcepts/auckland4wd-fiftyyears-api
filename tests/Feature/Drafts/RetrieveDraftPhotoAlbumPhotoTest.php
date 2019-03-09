@@ -79,16 +79,16 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
     }
 
     /** @test **/
-    public function can_retrieve_a_list_of_photos_in_a_draft_photo_album()
+    public function can_retrieve_a_list_of_photos_in_a_draft_photo_album_in_number_order()
     {
         $album = factory(PhotoAlbum::class)->states('draft')->create();
 
-        $photoA = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id]);
-        $photoB = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id]);
-        $photoC = factory(Photo::class)->states('removed')->create(['photo_album_id' => $album->id]);
-        $photoD = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id]);
-        $photoE = factory(Photo::class)->states('not-uploaded')->create(['photo_album_id' => $album->id]);
-        $photoF = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id]);
+        $photoA = factory(Photo::class)->states('uploaded')->create(['number' => 1, 'photo_album_id' => $album->id]);
+        $photoB = factory(Photo::class)->states('uploaded')->create(['number' => 3, 'photo_album_id' => $album->id]);
+        $photoC = factory(Photo::class)->states('removed')->create(['number' => 4, 'photo_album_id' => $album->id]);
+        $photoD = factory(Photo::class)->states('uploaded')->create(['number' => 5, 'photo_album_id' => $album->id]);
+        $photoE = factory(Photo::class)->states('not-uploaded')->create(['number' => 6, 'photo_album_id' => $album->id]);
+        $photoF = factory(Photo::class)->states('uploaded')->create(['number' => 2, 'photo_album_id' => $album->id]);
 
         app('auth')->login($album->user);
 
@@ -99,9 +99,9 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->assertCollectionEquals([
             $photoA,
+            $photoF,
             $photoB,
             $photoD,
-            $photoF
         ], $this->responseData('data'));
     }
 }
