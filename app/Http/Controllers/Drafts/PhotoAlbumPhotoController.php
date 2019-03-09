@@ -49,14 +49,13 @@ class PhotoAlbumPhotoController extends Controller
         $this->validate($request, [
             'filename' => 'required',
             'type' => ['required', Rule::in(Photo::types())],
-            'number' => ['required', 'integer', Rule::notIn($album->photos()->pluck('number'))]
         ]);
 
         $photo = $album->photos()->create([
             'uploaded_by_id' => Auth::id(),
             'original_filename' => $request->input('filename'),
             'type' => $request->input('type'),
-            'number' => $request->input('number')
+            'number' => $album->getNextAvailablePhotoNumber()
         ]);
 
         $upload

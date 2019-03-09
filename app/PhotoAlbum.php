@@ -91,6 +91,17 @@ class PhotoAlbum extends Model
     }
 
     /**
+     * Get the next highest number that could be used for a photo in this
+     * album (the highest number in use, plus 1).
+     *
+     * @return int
+     */
+    public function getNextAvailablePhotoNumber()
+    {
+        return $this->photos()->max('number') + 1;
+    }
+
+    /**
      * Set the value of this albums date, from the approx_day, approx_month
      * and approx_year values.
      *

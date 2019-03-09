@@ -20,8 +20,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
             'filename' => 'photo123.jpg',
-            'type' => 'image/jpeg',
-            'number' => 1,
+            'type' => 'image/jpeg'
         ]);
 
         $this->seeStatusCode(201);
@@ -46,7 +45,10 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
             ],
         ]);
 
+
         tap(Photo::first(), function ($photo) use ($album) {
+            $this->seeJson(['id' => $photo->obfuscatedId()]);
+
             $this->assertEquals($album->id, $photo->photo_album_id);
             $this->assertEquals($album->user_id, $photo->uploadedBy->id);
             $this->assertEquals('photo123.jpg', $photo->original_filename);
@@ -71,8 +73,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
             'filename' => 'photo123.jpg',
-            'type' => 'image/jpeg',
-            'number' => 1,
+            'type' => 'image/jpeg'
         ]);
 
         $this->seeStatusCode(404);
@@ -87,8 +88,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
             'filename' => 'photo123.jpg',
-            'type' => 'image/jpeg',
-            'number' => 1,
+            'type' => 'image/jpeg'
         ]);
 
         $this->seeStatusCode(403);
@@ -103,8 +103,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
             'filename' => 'photo123.jpg',
-            'type' => 'image/jpeg',
-            'number' => 1,
+            'type' => 'image/jpeg'
         ]);
 
         $this->seeStatusCode(201);
@@ -118,8 +117,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
         Auth::login($album->user);
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
-            'type' => 'image/jpeg',
-            'number' => 1,
+            'type' => 'image/jpeg'
         ]);
 
         $this->seeStatusCode(422);
@@ -134,8 +132,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
         Auth::login($album->user);
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
-            'filename' => 'photo123.jpg',
-            'number' => 1,
+            'filename' => 'photo123.jpg'
         ]);
 
         $this->seeStatusCode(422);
@@ -151,8 +148,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
             'filename' => 'photo123.jpg',
-            'type' => 'text/plain',
-            'number' => 1,
+            'type' => 'text/plain'
         ]);
 
         $this->seeStatusCode(422);
@@ -160,44 +156,11 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     }
 
     /** @test **/
-    public function number_is_required()
-    {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
-
-        Auth::login($album->user);
-
-        $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
-            'filename' => 'photo123.jpg',
-            'type' => 'image/jpeg',
-        ]);
-
-        $this->seeStatusCode(422);
-        $this->assertJsonHasKey('number');
-    }
-
-    /** @test **/
-    public function number_must_be_an_integer()
-    {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
-
-        Auth::login($album->user);
-
-        $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
-            'filename' => 'photo123.jpg',
-            'type' => 'image/jpeg',
-            'number' => 'A',
-        ]);
-
-        $this->seeStatusCode(422);
-        $this->assertJsonHasKey('number');
-    }
-
-    /** @test **/
-    public function number_must_be_unique_within_album()
+    public function number_is_incremented_when_given_number_already_exists()
     {
         $album = factory(PhotoAlbum::class)->state('draft')->create();
         factory(Photo::class)->create(['number' => 12, 'photo_album_id' => $album->id]);
-        factory(Photo::class)->create(['number' => 24, 'photo_album_id' => $album->id]);
+        factory(Photo::class)->create(['number' => 13, 'photo_album_id' => $album->id]);
 
         Auth::login($album->user);
 
@@ -207,7 +170,8 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
             'number' => 12,
         ]);
 
-        $this->seeStatusCode(422);
-        $this->assertJsonHasKey('number');
+        $this->seeStatusCode(201);
+        $this->assertEquals(14, $this->responseData('data.number'));
+        $this->assertEquals(14, $album->photos->last()->number);
     }
 }

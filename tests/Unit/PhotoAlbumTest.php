@@ -1,5 +1,6 @@
 <?php
 
+use App\Photo;
 use Carbon\Carbon;
 use App\PhotoAlbum;
 use App\IdObfuscator;
@@ -145,5 +146,28 @@ class PhotoAlbumTest extends TestCase
         $this->assertEquals(null, $result['approx_day']);
         $this->assertEquals(null, $result['approx_month']);
         $this->assertEquals(null, $result['approx_year']);
+    }
+
+    /** @test **/
+    public function get_next_available_number_for_photos_in_this_album()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        factory(Photo::class)->create(['number' => 1, 'photo_album_id' => $album->id]);
+        factory(Photo::class)->create(['number' => 2, 'photo_album_id' => $album->id]);
+        factory(Photo::class)->create(['number' => 4, 'photo_album_id' => $album->id]);
+
+        $number = $album->getNextAvailablePhotoNumber();
+
+        $this->assertEquals(5, $number);
+    }
+
+    /** @test **/
+    public function get_next_available_number_for_photos_when_no_photos_exist()
+    {
+        $album = factory(PhotoAlbum::class)->states('draft')->create();
+
+        $number = $album->getNextAvailablePhotoNumber();
+
+        $this->assertEquals(1, $number);
     }
 }
