@@ -2,15 +2,25 @@
 
 namespace App;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 
-class PhotoAlbum extends Model
+class Item extends Model
 {
     use ObfuscatesId;
+
+    const PHOTO_ALBUM = 1;
 
     protected $guarded = [];
 
     protected $dates = ['date'];
+
+    /**
+     * @var array $types accepted values for type
+     */
+    protected static $types = [
+        self::PHOTO_ALBUM => 'photoalbum'
+    ];
 
     public function user()
     {
@@ -35,6 +45,30 @@ class PhotoAlbum extends Model
     public function scopeRemoved($query)
     {
         return $query->whereNotNull('removed_at');
+    }
+
+    public function scopePhotoAlbum($query)
+    {
+        return $query->where('type', self::PHOTO_ALBUM);
+    }
+
+    public function setTypeAttribute($key)
+    {
+        if (!self::types()->has($key)) {
+            throw new Exception('Invalid type value for Item');
+        }
+
+        $this->attributes['type'] = $key;
+    }
+
+    /**
+     * Get the accepted types
+     *
+     * @return array value => name
+     */
+    public static function types()
+    {
+        return collect(self::$types);
     }
 
     /**
@@ -62,7 +96,7 @@ class PhotoAlbum extends Model
     }
 
     /**
-     * Publish this photo album. Sets published_at date and persists to db
+     * Publish this item. Sets published_at date and persists to db
      */
     public function publish()
     {
@@ -72,7 +106,7 @@ class PhotoAlbum extends Model
     }
 
     /**
-     * Unpublish this photo album, return to draft.
+     * Unpublish this item, return to draft.
      * Sets published_at date to null and persists to db
      */
     public function unpublish()
@@ -81,7 +115,7 @@ class PhotoAlbum extends Model
     }
 
     /**
-     * Remove this photo album. Sets removed_at date and persists to db
+     * Remove this item. Sets removed_at date and persists to db
      */
     public function remove()
     {
@@ -102,7 +136,7 @@ class PhotoAlbum extends Model
     }
 
     /**
-     * Set the value of this albums date, from the approx_day, approx_month
+     * Set the value of this items date, from the approx_day, approx_month
      * and approx_year values.
      *
      * @return $this
@@ -131,7 +165,7 @@ class PhotoAlbum extends Model
             'approx_month' => $this->approx_month ? (int) $this->approx_month : null,
             'approx_year' => $this->approx_year ? (int) $this->approx_year : null,
             'location' => $this->location,
-            'photographer' => $this->photographer,
+            'authorship' => $this->authorship,
             'description' => $this->description,
         ];
     }

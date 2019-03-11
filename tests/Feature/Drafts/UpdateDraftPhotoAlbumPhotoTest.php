@@ -1,8 +1,8 @@
 <?php
 
+use App\Item;
 use App\User;
 use App\Photo;
-use App\PhotoAlbum;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
@@ -14,9 +14,9 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function can_update_a_photo_belonging_to_a_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         $photo = factory(Photo::class)->state('not-uploaded')->create([
-            'photo_album_id' => $album->id,
+            'item_id' => $album->id,
             'description' => 'Original description',
             'number' => 1
         ]);
@@ -56,7 +56,7 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     public function one_of_description_number_or_uploaded_must_be_given()
     {
         $photo = factory(Photo::class)->state('not-uploaded')->create();
-        $album = $photo->photoAlbum;
+        $album = $photo->item;
 
         Auth::login($album->user);
 
@@ -87,7 +87,7 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     public function number_must_be_an_integer()
     {
         $photo = factory(Photo::class)->state('not-uploaded')->create();
-        $album = $photo->photoAlbum;
+        $album = $photo->item;
 
         Auth::login($album->user);
 
@@ -103,7 +103,7 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     public function uploaded_must_be_an_boolean()
     {
         $photo = factory(Photo::class)->state('not-uploaded')->create();
-        $album = $photo->photoAlbum;
+        $album = $photo->item;
 
         Auth::login($album->user);
 
@@ -118,9 +118,9 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function cannot_update_a_photo_record_for_a_published_album()
     {
-        $album = factory(PhotoAlbum::class)->state('published')->create();
+        $album = factory(Item::class)->states('album', 'published')->create();
         $photo = factory(Photo::class)->state('not-uploaded')->create([
-            'photo_album_id' => $album->id
+            'item_id' => $album->id
         ]);
 
         Auth::login($album->user);
@@ -136,7 +136,7 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     public function cannot_update_a_photo_record_for_somebody_elses_album()
     {
         $photo = factory(Photo::class)->state('not-uploaded')->create();
-        $album = $photo->photoAlbum;
+        $album = $photo->item;
 
         Auth::login(factory(User::class)->create()); // log in as someone else
 
@@ -151,7 +151,7 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     public function can_update_a_photo_record_for_somebody_elses_album_as_an_editor()
     {
         $photo = factory(Photo::class)->state('not-uploaded')->create();
-        $album = $photo->photoAlbum;
+        $album = $photo->item;
 
         Auth::login(factory(User::class)->states('editor')->create()); // log in as someone else
 
@@ -165,9 +165,9 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function cannot_update_a_removed_photo_record()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         $photo = factory(Photo::class)->state('not-uploaded')->create([
-            'photo_album_id' => $album->id
+            'item_id' => $album->id
         ]);
 
         $photo->remove();

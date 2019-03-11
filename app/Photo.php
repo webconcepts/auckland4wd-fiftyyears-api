@@ -22,9 +22,9 @@ class Photo extends Model
         1 => 'image/jpeg'
     ];
 
-    public function photoAlbum()
+    public function item()
     {
-        return $this->belongsTo(PhotoAlbum::class);
+        return $this->belongsTo(Item::class);
     }
 
     public function uploadedBy()
@@ -66,7 +66,7 @@ class Photo extends Model
      */
     public function next()
     {
-        return self::where('photo_album_id', $this->photo_album_id)
+        return self::where('item_id', $this->item_id)
             ->where('uploaded', true)
             ->where('number', '>', $this->number)
             ->orderBy('number')
@@ -80,7 +80,7 @@ class Photo extends Model
      */
     public function previous()
     {
-        return self::where('photo_album_id', $this->photo_album_id)
+        return self::where('item_id', $this->item_id)
             ->where('uploaded', true)
             ->where('number', '<', $this->number)
             ->orderBy('number', 'desc')
@@ -110,7 +110,7 @@ class Photo extends Model
      */
     public function remove()
     {
-        if ($this->photoAlbum->isDraft()) {
+        if ($this->item->isDraft()) {
             $this->update(['removed_at' => $this->freshTimestamp()]);
         }
     }
@@ -122,7 +122,7 @@ class Photo extends Model
      */
     public function s3Key()
     {
-        return env('AWS_S3_KEY_PREFIX', 'dev').'/'.$this->obfuscatedId('photo_album_id').'/'.$this->obfuscatedId();
+        return env('AWS_S3_KEY_PREFIX', 'dev').'/'.$this->obfuscatedId('item_id').'/'.$this->obfuscatedId();
     }
 
     public function toArray()

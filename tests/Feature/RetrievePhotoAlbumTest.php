@@ -1,7 +1,7 @@
 <?php
 
+use App\Item;
 use Carbon\Carbon;
-use App\PhotoAlbum;
 use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
@@ -13,11 +13,11 @@ class RetrievePhotoAlbumTest extends TestCase
     /** @test **/
     public function can_retrieve_a_published_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->states('published')->create([
+        $album = factory(Item::class)->states('album', 'published')->create([
             'title' => 'Woodhill forest trip',
             'date' => Carbon::parse('November 12, 1995'),
             'location' => 'Woodhill forest',
-            'photographer' => 'John Smith',
+            'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ]);
 
@@ -26,7 +26,7 @@ class RetrievePhotoAlbumTest extends TestCase
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'location', 'authorship', 'description'
             ]
         ]);
         $this->seeJson([
@@ -34,7 +34,7 @@ class RetrievePhotoAlbumTest extends TestCase
             'title' => 'Woodhill forest trip',
             'date' => '1995-11-12',
             'location' => 'Woodhill forest',
-            'photographer' => 'John Smith',
+            'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ]);
     }
@@ -42,7 +42,7 @@ class RetrievePhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_retrieve_a_draft_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
 
         $this->json('GET', '/photo-albums/'.$album->obfuscatedId());
 
@@ -54,10 +54,10 @@ class RetrievePhotoAlbumTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $albumA = factory(PhotoAlbum::class)->states('published')->create();
-        $draft = factory(PhotoAlbum::class)->states('draft')->create();
-        $albumB = factory(PhotoAlbum::class)->states('published')->create();
-        $albumC = factory(PhotoAlbum::class)->states('published')->create();
+        $albumA = factory(Item::class)->states('album', 'published')->create();
+        $draft = factory(Item::class)->states('album', 'draft')->create();
+        $albumB = factory(Item::class)->states('album', 'published')->create();
+        $albumC = factory(Item::class)->states('album', 'published')->create();
 
         $this->json('GET', '/photo-albums');
         $content = json_decode($this->response->getContent());

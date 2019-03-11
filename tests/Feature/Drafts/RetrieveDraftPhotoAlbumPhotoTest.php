@@ -1,8 +1,8 @@
 <?php
 
+use App\Item;
 use App\User;
 use App\Photo;
-use App\PhotoAlbum;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -15,20 +15,20 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         $photo = factory(Photo::class)->create([
-            'photo_album_id' => $album->id,
+            'item_id' => $album->id,
             'number' => 24,
             'uploaded' => true,
             'description' => 'This is an example description',
         ]);
 
-        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 27]);
-        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 29]);
-        $next = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 26]);
-        $previous = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 23]);
-        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 22]);
-        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 21]);
+        factory(Photo::class)->states('uploaded')->create(['item_id' => $album->id, 'number' => 27]);
+        factory(Photo::class)->states('uploaded')->create(['item_id' => $album->id, 'number' => 29]);
+        $next = factory(Photo::class)->states('uploaded')->create(['item_id' => $album->id, 'number' => 26]);
+        $previous = factory(Photo::class)->states('uploaded')->create(['item_id' => $album->id, 'number' => 23]);
+        factory(Photo::class)->states('uploaded')->create(['item_id' => $album->id, 'number' => 22]);
+        factory(Photo::class)->states('uploaded')->create(['item_id' => $album->id, 'number' => 21]);
 
         app('auth')->login($album->user);
 
@@ -55,8 +55,8 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function cannot_retrieve_a_photo_in_a_published_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->states('published')->create();
-        $photo = factory(Photo::class)->create(['photo_album_id' => $album->id]);
+        $album = factory(Item::class)->states('album', 'published')->create();
+        $photo = factory(Photo::class)->create(['item_id' => $album->id]);
 
         app('auth')->login($album->user);
 
@@ -73,7 +73,7 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
         // log in as someone else, not owner of this album
         app('auth')->login(factory(User::class)->create());
 
-        $this->json('GET', '/drafts/photo-albums/'.$photo->photoAlbum->obfuscatedId().'/photos/'.$photo->obfuscatedId());
+        $this->json('GET', '/drafts/photo-albums/'.$photo->item->obfuscatedId().'/photos/'.$photo->obfuscatedId());
 
         $this->seeStatusCode(403);
     }
@@ -86,7 +86,7 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
         // log in as someone else, not owner of this album
         app('auth')->login(factory(User::class)->states('editor')->create());
 
-        $this->json('GET', '/drafts/photo-albums/'.$photo->photoAlbum->obfuscatedId().'/photos/'.$photo->obfuscatedId());
+        $this->json('GET', '/drafts/photo-albums/'.$photo->item->obfuscatedId().'/photos/'.$photo->obfuscatedId());
 
         $this->seeStatusCode(200);
     }
@@ -94,14 +94,14 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function can_retrieve_a_list_of_photos_in_a_draft_photo_album_in_number_order()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
 
-        $photoA = factory(Photo::class)->states('uploaded')->create(['number' => 1, 'photo_album_id' => $album->id]);
-        $photoB = factory(Photo::class)->states('uploaded')->create(['number' => 3, 'photo_album_id' => $album->id]);
-        $photoC = factory(Photo::class)->states('removed')->create(['number' => 4, 'photo_album_id' => $album->id]);
-        $photoD = factory(Photo::class)->states('uploaded')->create(['number' => 5, 'photo_album_id' => $album->id]);
-        $photoE = factory(Photo::class)->states('not-uploaded')->create(['number' => 6, 'photo_album_id' => $album->id]);
-        $photoF = factory(Photo::class)->states('uploaded')->create(['number' => 2, 'photo_album_id' => $album->id]);
+        $photoA = factory(Photo::class)->states('uploaded')->create(['number' => 1, 'item_id' => $album->id]);
+        $photoB = factory(Photo::class)->states('uploaded')->create(['number' => 3, 'item_id' => $album->id]);
+        $photoC = factory(Photo::class)->states('removed')->create(['number' => 4, 'item_id' => $album->id]);
+        $photoD = factory(Photo::class)->states('uploaded')->create(['number' => 5, 'item_id' => $album->id]);
+        $photoE = factory(Photo::class)->states('not-uploaded')->create(['number' => 6, 'item_id' => $album->id]);
+        $photoF = factory(Photo::class)->states('uploaded')->create(['number' => 2, 'item_id' => $album->id]);
 
         app('auth')->login($album->user);
 

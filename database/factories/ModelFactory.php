@@ -26,35 +26,44 @@ $factory->state(App\User::class, 'editor', function ($faker) {
     ];
 });
 
-$factory->define(App\PhotoAlbum::class, function (Faker\Generator $faker) {
+$factory->define(App\Item::class, function (Faker\Generator $faker) {
     return  [
         'user_id' => factory(App\User::class)->create()->id,
-        'title' => 'Example photo album',
+        'type' => App\Item::PHOTO_ALBUM,
+        'title' => 'Example content item',
         'date' => Carbon::parse('October 7, 1975'),
         'approx_day' => 7,
         'approx_month' => 10,
         'approx_year' => 1975,
         'location' => 'Example location',
-        'photographer' => 'Example photographer',
+        'authorship' => 'Example author',
         'description' => '<p>This is an example description.</p><p>It could contain html and multiple paragraphs</p>',
     ];
 });
 
-$factory->state(App\PhotoAlbum::class, 'published', function ($faker) {
+$factory->state(App\Item::class, 'album', function (Faker\Generator $faker) {
+    return [
+        'type' => App\Item::PHOTO_ALBUM,
+        'title' => 'Example photo album',
+        'authorship' => 'Example photographer',
+    ];
+});
+
+$factory->state(App\Item::class, 'published', function ($faker) {
     return [
         'published_at' => Carbon::parse('-1 week'),
         'removed_at' => null,
     ];
 });
 
-$factory->state(App\PhotoAlbum::class, 'draft', function ($faker) {
+$factory->state(App\Item::class, 'draft', function ($faker) {
     return [
         'published_at' => null,
         'removed_at' => null,
     ];
 });
 
-$factory->state(App\PhotoAlbum::class, 'removed', function ($faker) {
+$factory->state(App\Item::class, 'removed', function ($faker) {
     return [
         'published_at' => null,
         'removed_at' => Carbon::parse('-1 day'),
@@ -63,7 +72,7 @@ $factory->state(App\PhotoAlbum::class, 'removed', function ($faker) {
 
 $factory->define(App\Photo::class, function (Faker\Generator $faker) {
     return  [
-        'photo_album_id' => factory(App\PhotoAlbum::class)->state('draft')->create()->id,
+        'item_id' => factory(App\Item::class)->state('draft')->create()->id,
         'uploaded_by_id' => factory(App\User::class)->create()->id,
         'type' => 'image/jpeg',
         'number' => 24,

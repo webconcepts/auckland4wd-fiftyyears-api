@@ -1,7 +1,7 @@
 <?php
 
+use App\Item;
 use App\User;
-use App\PhotoAlbum;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -12,14 +12,14 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_a_draft_album()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'title' => 'Original title',
             'date' => '1990-01-01',
             'approx_day' => 1,
             'approx_month' => 1,
             'approx_year' => 1990,
             'location' => 'Original location',
-            'photographer' => 'Original photographer',
+            'authorship' => 'Original photographer',
             'description' => '<p>Original description</p>'
         ]);
         app('auth')->login($album->user);
@@ -31,7 +31,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
             'approx_month' => '12',
             'approx_year' => '2018',
             'location' => 'New location',
-            'photographer' => 'New photographer',
+            'authorship' => 'New photographer',
             'description' => '<p>New description</p>',
         ]);
 
@@ -39,7 +39,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
 
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location', 'authorship', 'description'
             ]
         ]);
         $this->seeJson([
@@ -50,7 +50,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
             'approx_month' => 12,
             'approx_year' => 2018,
             'location' => 'New location',
-            'photographer' => 'New photographer',
+            'authorship' => 'New photographer',
             'description' => '<p>New description</p>',
         ]);
 
@@ -61,7 +61,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
             $this->assertEquals(12, $album->approx_month);
             $this->assertEquals(2018, $album->approx_year);
             $this->assertEquals('New location', $album->location);
-            $this->assertEquals('New photographer', $album->photographer);
+            $this->assertEquals('New photographer', $album->authorship);
             $this->assertEquals('<p>New description</p>', $album->description);
         });
     }
@@ -69,7 +69,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_update_a_published_album()
     {
-        $album = factory(PhotoAlbum::class)->states('published')->create([]);
+        $album = factory(Item::class)->states('album', 'published')->create([]);
         app('auth')->login($album->user);
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
@@ -82,7 +82,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_title()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'title' => 'Original title'
         ]);
         app('auth')->login($album->user);
@@ -98,7 +98,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_date()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'date' => '1990-01-01'
         ]);
         app('auth')->login($album->user);
@@ -114,7 +114,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function date_must_be_in_correct_format()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'date' => '1990-01-01'
         ]);
         app('auth')->login($album->user);
@@ -130,7 +130,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_approx_day()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'approx_day' => 2
         ]);
         app('auth')->login($album->user);
@@ -146,7 +146,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function approx_day_must_be_between_1_and_31()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         app('auth')->login($album->user);
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
@@ -167,7 +167,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_approx_month()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'approx_month' => 4
         ]);
         app('auth')->login($album->user);
@@ -183,7 +183,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function approx_month_must_be_between_1_and_12()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         app('auth')->login($album->user);
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
@@ -204,7 +204,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_approx_year()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'approx_year' => 1995
         ]);
         app('auth')->login($album->user);
@@ -220,7 +220,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function approx_year_must_be_between_1969_and_2019()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         app('auth')->login($album->user);
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
@@ -241,7 +241,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function updating_approximate_date_values_updates_date_for_non_editors()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'date' => '1990-11-24',
             'approx_day' => null,
             'approx_month' => null,
@@ -275,7 +275,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     public function updating_approximate_date_will_not_update_date_for_an_editor()
     {
         $user = factory(User::class)->states('editor')->create();
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'user_id' => $user->id,
             'date' => '1990-11-24',
             'approx_day' => 24,
@@ -300,7 +300,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_location()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'location' => 'Original location'
         ]);
         app('auth')->login($album->user);
@@ -314,25 +314,25 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     }
 
     /** @test **/
-    public function can_update_photographer()
+    public function can_update_authorship()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
-            'photographer' => 'Original photographer'
+        $album = factory(Item::class)->states('album', 'draft')->create([
+            'authorship' => 'Original photographer'
         ]);
         app('auth')->login($album->user);
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
-            'photographer' => 'New photographer'
+            'authorship' => 'New photographer'
         ]);
 
         $this->seeStatusCode(200);
-        $this->assertEquals('New photographer', $album->fresh()->photographer);
+        $this->assertEquals('New photographer', $album->fresh()->authorship);
     }
 
     /** @test **/
     public function can_update_description()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'description' => '<p>Original description</p>'
         ]);
         app('auth')->login($album->user);
@@ -348,7 +348,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_update_without_a_valid_field()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         app('auth')->login($album->user);
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), []);
@@ -359,7 +359,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_update_when_not_logged_in()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
             'title' => 'New title'
@@ -371,7 +371,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_update_someone_elses_album()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         app('auth')->login(factory(User::class)->create());
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [
@@ -384,7 +384,7 @@ class UpdateDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_update_someone_elses_album_as_an_editor()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
         app('auth')->login(factory(User::class)->states('editor')->create());
 
         $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId(), [

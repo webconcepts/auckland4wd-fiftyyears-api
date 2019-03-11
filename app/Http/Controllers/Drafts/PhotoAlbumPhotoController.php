@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Drafts;
 
+use App\Item;
 use App\Photo;
-use App\PhotoAlbum;
 use App\S3DirectUpload;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -116,8 +116,8 @@ class PhotoAlbumPhotoController extends Controller
      */
     protected function getAlbum($obfuscatedAlbumId)
     {
-        $album = PhotoAlbum::draft()
-            ->findOrFail(PhotoAlbum::actualId($obfuscatedAlbumId));
+        $album = Item::photoAlbum()->draft()
+            ->findOrFail(Item::actualId($obfuscatedAlbumId));
 
         $this->authorize('edit', $album);
 

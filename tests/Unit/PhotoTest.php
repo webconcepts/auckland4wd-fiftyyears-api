@@ -1,7 +1,7 @@
 <?php
 
+use App\Item;
 use App\Photo;
-use App\PhotoAlbum;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -12,8 +12,8 @@ class PhotoTest extends TestCase
     /** @test **/
     public function photo_in_a_draft_photo_album_can_be_removed()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
-        $photo = factory(Photo::class)->create(['photo_album_id' => $album->id]);
+        $album = factory(Item::class)->states('album', 'draft')->create();
+        $photo = factory(Photo::class)->create(['item_id' => $album->id]);
 
         $this->assertTrue($album->isDraft());
         $this->assertFalse($photo->isRemoved());
@@ -26,8 +26,8 @@ class PhotoTest extends TestCase
     /** @test **/
     public function photo_in_a_published_photo_album_cannot_be_removed()
     {
-        $album = factory(PhotoAlbum::class)->states('published')->create();
-        $photo = factory(Photo::class)->create(['photo_album_id' => $album->id]);
+        $album = factory(Item::class)->states('album', 'published')->create();
+        $photo = factory(Photo::class)->create(['item_id' => $album->id]);
 
         $this->assertFalse($photo->isRemoved());
 

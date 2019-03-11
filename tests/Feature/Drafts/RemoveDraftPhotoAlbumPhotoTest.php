@@ -1,8 +1,8 @@
 <?php
 
+use App\Item;
 use App\User;
 use App\Photo;
-use App\PhotoAlbum;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
@@ -16,7 +16,7 @@ class RemoveDraftPhotoAlbumPhotoTest extends TestCase
         $this->withoutExceptionHandling();
 
         $photo = factory(Photo::class)->create();
-        $album = $photo->photoAlbum;
+        $album = $photo->item;
 
         app('auth')->login($album->user);
 
@@ -29,8 +29,8 @@ class RemoveDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function cannot_remove_a_photo_from_a_published_album()
     {
-        $album = factory(PhotoAlbum::class)->states('published')->create();
-        $photo = factory(Photo::class)->create(['photo_album_id' => $album->id]);
+        $album = factory(Item::class)->states('album', 'published')->create();
+        $photo = factory(Photo::class)->create(['item_id' => $album->id]);
 
         app('auth')->login($album->user);
 
@@ -44,7 +44,7 @@ class RemoveDraftPhotoAlbumPhotoTest extends TestCase
     public function cannot_remove_an_already_removed_photo()
     {
         $photo = factory(Photo::class)->create();
-        $album = $photo->photoAlbum;
+        $album = $photo->item;
 
         app('auth')->login($album->user);
 
@@ -62,7 +62,7 @@ class RemoveDraftPhotoAlbumPhotoTest extends TestCase
 
         app('auth')->login(factory(User::class)->create());
 
-        $this->json('DELETE', '/drafts/photo-albums/'.$photo->photoAlbum->obfuscatedId().'/photos/'.$photo->obfuscatedId());
+        $this->json('DELETE', '/drafts/photo-albums/'.$photo->item->obfuscatedId().'/photos/'.$photo->obfuscatedId());
 
         $this->seeStatusCode(403);
     }
@@ -72,7 +72,7 @@ class RemoveDraftPhotoAlbumPhotoTest extends TestCase
     {
         $photo = factory(Photo::class)->create();
 
-        $this->json('DELETE', '/drafts/photo-albums/'.$photo->photoAlbum->obfuscatedId().'/photos/'.$photo->obfuscatedId());
+        $this->json('DELETE', '/drafts/photo-albums/'.$photo->item->obfuscatedId().'/photos/'.$photo->obfuscatedId());
 
         $this->seeStatusCode(401);
     }
@@ -84,7 +84,7 @@ class RemoveDraftPhotoAlbumPhotoTest extends TestCase
 
         app('auth')->login(factory(User::class)->states('editor')->create());
 
-        $this->json('DELETE', '/drafts/photo-albums/'.$photo->photoAlbum->obfuscatedId().'/photos/'.$photo->obfuscatedId());
+        $this->json('DELETE', '/drafts/photo-albums/'.$photo->item->obfuscatedId().'/photos/'.$photo->obfuscatedId());
 
         $this->seeStatusCode(200);
     }

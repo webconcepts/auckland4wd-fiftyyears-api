@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\PhotoAlbum;
+use App\Item;
 use Illuminate\Support\Carbon;
 use App\Mail\VerificationEmail;
 use App\VerificationCodeGenerator;
@@ -31,17 +31,17 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function photoAlbums()
     {
-        return $this->hasMany(PhotoAlbum::class);
+        return $this->hasMany(Item::class)->photoAlbum();
     }
 
     public function draftPhotoAlbums()
     {
-        return $this->hasMany(PhotoAlbum::class)->draft();
+        return $this->hasMany(Item::class)->photoAlbum()->draft();
     }
 
     public function publishedPhotoAlbums()
     {
-        return $this->hasMany(PhotoAlbum::class)->published();
+        return $this->hasMany(Item::class)->photoAlbum()->published();
     }
 
     /**

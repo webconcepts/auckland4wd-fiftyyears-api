@@ -19,7 +19,7 @@ class UpdatePhotoOrder
     {
         return DB::table($photo->getTable())
             ->where('id', '<>', $photo->id)
-            ->where('photo_album_id', $photo->photo_album_id)
+            ->where('item_id', $photo->item_id)
             ->where('number', '>=', $photo->number)
             ->increment('number');
     }

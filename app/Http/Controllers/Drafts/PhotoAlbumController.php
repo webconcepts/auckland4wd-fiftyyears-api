@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Drafts;
 
 use App\User;
-use App\PhotoAlbum;
+use App\Item;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +35,8 @@ class PhotoAlbumController extends Controller
             'title' => 'required'
         ]);
 
-        $album = PhotoAlbum::create([
+        $album = Item::create([
+            'type' => Item::PHOTO_ALBUM,
             'title' => $request->input('title'),
             'user_id' => Auth::user()->id
         ]);
@@ -58,7 +59,7 @@ class PhotoAlbumController extends Controller
             'approx_month' => 'nullable|integer|between:1,12',
             'approx_year' => 'nullable|integer|between:1969,2019',
             'location' => 'nullable',
-            'photographer' => 'nullable',
+            'authorship' => 'nullable',
             'description' => 'nullable',
         ]));
 
@@ -93,8 +94,8 @@ class PhotoAlbumController extends Controller
      */
     protected function getAlbum($obfuscatedId)
     {
-        $album = PhotoAlbum::draft()
-            ->findOrFail(PhotoAlbum::actualId($obfuscatedId));
+        $album = Item::photoAlbum()->draft()
+            ->findOrFail(Item::actualId($obfuscatedId));
 
         $this->authorize('edit', $album);
 

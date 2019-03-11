@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\PhotoAlbum;
+use App\Item;
 use Illuminate\Http\Request;
 
 class PhotoAlbumController extends Controller
@@ -12,7 +12,7 @@ class PhotoAlbumController extends Controller
      */
     public function index()
     {
-        return ['data' => PhotoAlbum::published()->get()];
+        return ['data' => Item::published()->get()];
     }
 
     /**
@@ -21,8 +21,8 @@ class PhotoAlbumController extends Controller
     public function show($obfuscatedId)
     {
         return [
-            'data' => PhotoAlbum::published()
-                ->findOrFail(PhotoAlbum::actualId($obfuscatedId))
+            'data' => Item::photoAlbum()->published()
+                ->findOrFail(Item::actualId($obfuscatedId))
         ];
     }
 }

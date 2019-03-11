@@ -1,8 +1,8 @@
 <?php
 
+use App\Item;
 use App\User;
 use App\Photo;
-use App\PhotoAlbum;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
@@ -13,8 +13,8 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
     /** @test **/
     public function can_create_a_new_photo_record_and_get_s3_upload_request_data()
-    {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+    { $this->withoutExceptionHandling();
+        $album = factory(Item::class)->state('album', 'draft')->create();
 
         Auth::login($album->user);
 
@@ -49,7 +49,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
         tap(Photo::first(), function ($photo) use ($album) {
             $this->seeJson(['id' => $photo->obfuscatedId()]);
 
-            $this->assertEquals($album->id, $photo->photo_album_id);
+            $this->assertEquals($album->id, $photo->item_id);
             $this->assertEquals($album->user_id, $photo->uploadedBy->id);
             $this->assertEquals('photo123.jpg', $photo->original_filename);
             $this->assertEquals('image/jpeg', $photo->type);
@@ -67,7 +67,8 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function cannot_create_a_photo_record_for_a_published_album()
     {
-        $album = factory(PhotoAlbum::class)->state('published')->create();
+        $album = factory(Item::class)->states('album', 'published')->create();
+        $this->assertTrue($album->isPublished());
 
         Auth::login($album->user);
 
@@ -82,7 +83,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function cannot_create_a_photo_record_for_somebody_elses_album()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $album = factory(Item::class)->state('album', 'draft')->create();
 
         Auth::login(factory(User::class)->create());
 
@@ -97,7 +98,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function can_create_a_photo_record_for_somebody_elses_album_when_an_editor()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $album = factory(Item::class)->state('album', 'draft')->create();
 
         Auth::login(factory(User::class)->state('editor')->create());
 
@@ -112,7 +113,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function filename_is_required()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $album = factory(Item::class)->state('album', 'draft')->create();
 
         Auth::login($album->user);
 
@@ -127,7 +128,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function type_is_required()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $album = factory(Item::class)->state('album', 'draft')->create();
 
         Auth::login($album->user);
 
@@ -142,7 +143,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function type_must_be_an_accepted_type()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
+        $album = factory(Item::class)->state('album', 'draft')->create();
 
         Auth::login($album->user);
 
@@ -158,9 +159,9 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function number_is_incremented_when_given_number_already_exists()
     {
-        $album = factory(PhotoAlbum::class)->state('draft')->create();
-        factory(Photo::class)->create(['number' => 12, 'photo_album_id' => $album->id]);
-        factory(Photo::class)->create(['number' => 13, 'photo_album_id' => $album->id]);
+        $album = factory(Item::class)->state('album', 'draft')->create();
+        factory(Photo::class)->create(['number' => 12, 'item_id' => $album->id]);
+        factory(Photo::class)->create(['number' => 13, 'item_id' => $album->id]);
 
         Auth::login($album->user);
 

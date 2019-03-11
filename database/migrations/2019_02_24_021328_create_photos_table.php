@@ -15,7 +15,7 @@ class CreatePhotosTable extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('photo_album_id');
+            $table->unsignedInteger('item_id');
             $table->unsignedInteger('uploaded_by_id');
             $table->boolean('uploaded')->default(false);
             $table->integer('number');

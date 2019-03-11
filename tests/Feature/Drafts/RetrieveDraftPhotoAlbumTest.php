@@ -1,8 +1,8 @@
 <?php
 
+use App\Item;
 use App\User;
 use Carbon\Carbon;
-use App\PhotoAlbum;
 use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
@@ -14,14 +14,14 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_retrieve_a_draft_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create([
+        $album = factory(Item::class)->states('album', 'draft')->create([
             'title' => 'Woodhill forest trip',
             'date' => Carbon::parse('November 12, 1995'),
             'approx_day' => 12,
             'approx_month' => 11,
             'approx_year' => 1995,
             'location' => 'Woodhill forest',
-            'photographer' => 'John Smith',
+            'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ]);
 
@@ -32,7 +32,7 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location', 'authorship', 'description'
             ]
         ]);
         $this->seeJson([
@@ -43,7 +43,7 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
             'approx_month' => 11,
             'approx_year' => 1995,
             'location' => 'Woodhill forest',
-            'photographer' => 'John Smith',
+            'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
         ]);
     }
@@ -51,7 +51,7 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_retrieve_a_published_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->states('published')->create();
+        $album = factory(Item::class)->states('album', 'published')->create();
 
         app('auth')->login($album->user);
 
@@ -63,7 +63,7 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function cannot_retrieve_someone_elses_draft_photo_album()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
 
         // log in as someone else, not owner of this album
         app('auth')->login(factory(User::class)->create());
@@ -76,7 +76,7 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
     /** @test **/
     public function can_retrieve_someone_elses_draft_photo_album_as_an_editor()
     {
-        $album = factory(PhotoAlbum::class)->states('draft')->create();
+        $album = factory(Item::class)->states('album', 'draft')->create();
 
         // log in as someone else, not owner of this album
         app('auth')->login(factory(User::class)->states('editor')->create());
@@ -94,16 +94,15 @@ class RetrieveDraftPhotoAlbumTest extends TestCase
         $user = factory(User::class)->create();
         $otherUser = factory(User::class)->create();
 
-        $albumA = factory(PhotoAlbum::class)->states('draft')->create(['user_id' => $user->id]);
-        $published = factory(PhotoAlbum::class)->states('published')->create(['user_id' => $user->id]);
-        $albumB = factory(PhotoAlbum::class)->states('draft')->create(['user_id' => $user->id]);
-        $otherUsersAlbum = factory(PhotoAlbum::class)->states('draft')->create(['user_id' => $otherUser->id]);
-        $albumC = factory(PhotoAlbum::class)->states('draft')->create(['user_id' => $user->id]);
+        $albumA = factory(Item::class)->states('album', 'draft')->create(['user_id' => $user->id]);
+        $published = factory(Item::class)->states('album', 'published')->create(['user_id' => $user->id]);
+        $albumB = factory(Item::class)->states('album', 'draft')->create(['user_id' => $user->id]);
+        $otherUsersAlbum = factory(Item::class)->states('album', 'draft')->create(['user_id' => $otherUser->id]);
+        $albumC = factory(Item::class)->states('album', 'draft')->create(['user_id' => $user->id]);
 
         app('auth')->login($user);
 
         $this->json('GET', '/drafts/photo-albums');
-        $content = json_decode($this->response->getContent());
 
         $this->seeStatusCode(200);
         $this->seeJson();

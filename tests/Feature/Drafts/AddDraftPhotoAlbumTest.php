@@ -1,7 +1,7 @@
 <?php
 
 use App\User;
-use App\PhotoAlbum;
+use App\Item;
 use App\IdObfuscator;
 use Tymon\JWTAuth\JWT;
 use Laravel\Lumen\Testing\DatabaseMigrations;
@@ -28,11 +28,11 @@ class AddDraftPhotoAlbumTest extends TestCase
         $this->seeStatusCode(201);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'location', 'photographer', 'description'
+                'id', 'title', 'date', 'location', 'authorship', 'description'
             ]
         ]);
 
-        tap(PhotoAlbum::first(), function ($album) use ($user) {
+        tap(Item::first(), function ($album) use ($user) {
             $this->seeHeader('Location', url('/drafts/photo-albums/'.$album->obfuscatedId()));
 
             $this->seeJson([
@@ -40,7 +40,7 @@ class AddDraftPhotoAlbumTest extends TestCase
                 'title' => 'Woodhill forest trip',
                 'date' => null,
                 'location' => null,
-                'photographer' => null,
+                'authorship' => null,
                 'description' => null
             ]);
 
@@ -64,7 +64,7 @@ class AddDraftPhotoAlbumTest extends TestCase
 
         $this->seeStatusCode(401);
 
-        $this->assertEquals(0, PhotoAlbum::count());
+        $this->assertEquals(0, Item::count());
     }
 
     /** @test **/
