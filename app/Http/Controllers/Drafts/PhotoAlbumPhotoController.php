@@ -32,10 +32,17 @@ class PhotoAlbumPhotoController extends Controller
      */
     public function show($obfuscatedAlbumId, $obfuscatedId, Request $request)
     {
+        $photo = $this->getAlbum($obfuscatedAlbumId)
+            ->photos()
+            ->findOrFail(Photo::actualId($obfuscatedId));
+
+        $next = $photo->next();
+        $previous = $photo->previous();
+
         return [
-            'data' => $this->getAlbum($obfuscatedAlbumId)
-                ->photos()
-                ->findOrFail(Photo::actualId($obfuscatedId))
+            'data' => $photo,
+            'next' => $next ? $next->obfuscatedId() : null,
+            'previous' => $previous ? $previous->obfuscatedId() : null,
         ];
     }
 

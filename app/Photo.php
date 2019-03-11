@@ -60,6 +60,34 @@ class Photo extends Model
     }
 
     /**
+     * Get the next photo in this photo's photo album
+     *
+     * @return mixed Photo or null
+     */
+    public function next()
+    {
+        return self::where('photo_album_id', $this->photo_album_id)
+            ->where('uploaded', true)
+            ->where('number', '>', $this->number)
+            ->orderBy('number')
+            ->first();
+    }
+
+    /**
+     * Get the previous photo in this photo's photo album
+     *
+     * @return mixed Photo or null
+     */
+    public function previous()
+    {
+        return self::where('photo_album_id', $this->photo_album_id)
+            ->where('uploaded', true)
+            ->where('number', '<', $this->number)
+            ->orderBy('number', 'desc')
+            ->first();
+    }
+
+    /**
      * Has this photo been confirmed as uploaded to S3?
      *
      * @return bool
@@ -94,7 +122,7 @@ class Photo extends Model
      */
     public function s3Key()
     {
-        return $this->obfuscatedId('photo_album_id').'/'.$this->obfuscatedId();
+        return 'dev/'.$this->obfuscatedId('photo_album_id').'/'.$this->obfuscatedId();
     }
 
     public function toArray()

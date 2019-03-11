@@ -13,6 +13,8 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
     /** @test **/
     public function can_retrieve_a_photo_for_a_draft_photo_album()
     {
+        $this->withoutExceptionHandling();
+
         $album = factory(PhotoAlbum::class)->states('draft')->create();
         $photo = factory(Photo::class)->create([
             'photo_album_id' => $album->id,
@@ -20,6 +22,13 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
             'uploaded' => true,
             'description' => 'This is an example description',
         ]);
+
+        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 27]);
+        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 29]);
+        $next = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 26]);
+        $previous = factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 23]);
+        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 22]);
+        factory(Photo::class)->states('uploaded')->create(['photo_album_id' => $album->id, 'number' => 21]);
 
         app('auth')->login($album->user);
 
@@ -29,7 +38,9 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
         $this->seeJsonStructure([
             'data' => [
                 'id', 'number', 'uploaded', 'description'
-            ]
+            ],
+            'next',
+            'previous'
         ]);
         $this->seeJson([
             'id' => $photo->obfuscatedId(),
@@ -37,6 +48,8 @@ class RetrieveDraftPhotoAlbumPhotoTest extends TestCase
             'uploaded' => true,
             'description' => 'This is an example description',
         ]);
+        $this->seeJson(['next' => $next->obfuscatedId()]);
+        $this->seeJson(['previous' => $previous->obfuscatedId()]);
     }
 
     /** @test **/
