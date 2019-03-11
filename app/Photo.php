@@ -122,7 +122,7 @@ class Photo extends Model
      */
     public function s3Key()
     {
-        return 'dev/'.$this->obfuscatedId('photo_album_id').'/'.$this->obfuscatedId();
+        return env('AWS_S3_KEY_PREFIX', 'dev').'/'.$this->obfuscatedId('photo_album_id').'/'.$this->obfuscatedId();
     }
 
     public function toArray()
