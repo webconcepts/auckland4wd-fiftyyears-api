@@ -147,4 +147,47 @@ class ItemTest extends TestCase
         $this->assertEquals(null, $result['approx_month']);
         $this->assertEquals(null, $result['approx_year']);
     }
+
+    /** @test **/
+    public function html_stripped_when_setting_title_value()
+    {
+        $item = factory(Item::class)->make();
+
+        $item->title = '<h1>This is an <strong>awesome</strong></ br> title</h1>';
+
+        $this->assertEquals('This is an awesome title', $item->title);
+    }
+
+    /** @test **/
+    public function html_stripped_when_setting_location_value()
+    {
+        $item = factory(Item::class)->make();
+
+        $item->location = '<script></script>New location';
+
+        $this->assertEquals('New location', $item->location);
+    }
+
+    /** @test **/
+    public function html_stripped_when_setting_authorship_value()
+    {
+        $item = factory(Item::class)->make();
+
+        $item->authorship = 'Authors <img src="something<here">name';
+
+        $this->assertEquals('Authors name', $item->authorship);
+    }
+
+    /** @test **/
+    public function html_stripped_when_setting_description_value_except_p_and_br_tags()
+    {
+        $item = factory(Item::class)->make();
+
+        $item->description = '<p>This is a <strong>description</string></p><p>It has <u>paragraphs</u><br />and <em>line breaks</em></p>';
+
+        $this->assertEquals(
+            '<p>This is a description</p><p>It has paragraphs<br />and line breaks</p>',
+            $item->description
+        );
+    }
 }

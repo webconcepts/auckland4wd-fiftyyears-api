@@ -61,6 +61,26 @@ class Item extends Model
         $this->attributes['type'] = $key;
     }
 
+    public function setTitleAttribute($value)
+    {
+        $this->attributes['title'] = strip_tags($value);
+    }
+
+    public function setLocationAttribute($value)
+    {
+        $this->attributes['location'] = strip_tags($value);
+    }
+
+    public function setAuthorshipAttribute($value)
+    {
+        $this->attributes['authorship'] = strip_tags($value);
+    }
+
+    public function setDescriptionAttribute($value)
+    {
+        $this->attributes['description'] = strip_tags($value, '<p><br>');
+    }
+
     /**
      * Get the accepted types
      *
