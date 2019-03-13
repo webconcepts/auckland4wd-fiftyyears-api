@@ -12,6 +12,7 @@ class Item extends Model
 
     const PHOTO_ALBUM = 1;
     const VIDEO = 2;
+    const MILESTONE = 3;
 
     protected $guarded = [];
 
@@ -22,7 +23,8 @@ class Item extends Model
      */
     protected static $types = [
         self::PHOTO_ALBUM => 'photoalbum',
-        self::VIDEO => 'video'
+        self::VIDEO => 'video',
+        self::MILESTONE => 'milestone',
     ];
 
     /**
@@ -251,5 +253,7 @@ class Item extends Model
                 'video_id' => $this->video_id,
             ];
         }
+
+        return $base;
     }
 }

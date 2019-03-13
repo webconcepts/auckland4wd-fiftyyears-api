@@ -21,6 +21,9 @@ $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@sho
 $router->get('videos', ['uses' => 'VideoController@index']);
 $router->get('videos/{obfuscatedId}', ['uses' => 'VideoController@show', 'as' => 'videos.show']);
 
+$router->get('milestones', ['uses' => 'MilestoneController@index']);
+$router->get('milestones/{obfuscatedId}', ['uses' => 'MilestoneController@show', 'as' => 'milestones.show']);
+
 $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => 'auth'], function () use ($router) {
     $router->group(['prefix' => 'photo-albums'], function () use ($router) {
         $router->get('', ['uses' => 'PhotoAlbumController@index']);
@@ -44,6 +47,14 @@ $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => '
         $router->get('/{obfuscatedId}', ['uses' => 'VideoController@show', 'as' => 'drafts.videos.show']);
         $router->patch('/{obfuscatedId}', ['uses' => 'VideoController@update']);
         $router->delete('/{obfuscatedId}', ['uses' => 'VideoController@destroy']);
+    });
+
+    $router->group(['prefix' => 'milestones'], function () use ($router) {
+        $router->get('', ['uses' => 'MilestoneController@index']);
+        $router->post('', ['uses' => 'MilestoneController@store']);
+        $router->get('/{obfuscatedId}', ['uses' => 'MilestoneController@show', 'as' => 'drafts.milestones.show']);
+        $router->patch('/{obfuscatedId}', ['uses' => 'MilestoneController@update']);
+        $router->delete('/{obfuscatedId}', ['uses' => 'MilestoneController@destroy']);
     });
 });
 

@@ -49,7 +49,6 @@ $factory->state(App\Item::class, 'album', function (Faker\Generator $faker) {
     ];
 });
 
-
 $factory->state(App\Item::class, 'video', function (Faker\Generator $faker) {
     return [
         'type' => App\Item::VIDEO,
@@ -58,6 +57,15 @@ $factory->state(App\Item::class, 'video', function (Faker\Generator $faker) {
         'video_url' => 'https://www.vimeo.com/123456789',
         'video_type' => 'vimeo',
         'video_id' => '123456789',
+    ];
+});
+
+$factory->state(App\Item::class, 'milestone', function (Faker\Generator $faker) {
+    return [
+        'type' => App\Item::MILESTONE,
+        'title' => 'Example milestone',
+        'authorship' => null,
+        'location' => null,
     ];
 });
 
