@@ -9,6 +9,10 @@ trait ObfuscatesId
 {
     public function obfuscatedId($field = 'id')
     {
+        if ($this->$field === null) {
+            return null;
+        }
+
         return app(IdObfuscator::class)->encode($this->$field);
     }
 

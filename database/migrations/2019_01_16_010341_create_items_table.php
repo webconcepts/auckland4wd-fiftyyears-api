@@ -17,6 +17,7 @@ class CreateItemsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('type');
+            $table->unsignedInteger('cover_photo_id')->nullable();
             $table->string('title');
             $table->date('date')->nullable();
             $table->integer('approx_day')->nullable();

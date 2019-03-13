@@ -40,6 +40,11 @@ class Item extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function coverPhoto()
+    {
+        return $this->belongsTo(Photo::class)->whereNull('removed_at');
+    }
+
     public function photos()
     {
         return $this->hasMany(Photo::class)->whereNull('removed_at');
@@ -243,6 +248,7 @@ class Item extends Model
             return $base + [
                 'location' => $this->location,
                 'authorship' => $this->authorship,
+                'cover_photo_id' => $this->obfuscatedId('cover_photo_id'),
             ];
         } elseif ($this->type == self::VIDEO) {
             return $base + [

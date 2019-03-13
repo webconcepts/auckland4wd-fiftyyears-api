@@ -38,6 +38,9 @@ $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => '
         $router->get('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@show', 'as' => 'drafts.photoalbums.photo.show']);
         $router->patch('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@update']);
         $router->delete('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@destroy']);
+
+            $router->post('cover-photo', ['uses' => 'PhotoAlbumCoverPhotoController@store']);
+            $router->delete('cover-photo', ['uses' => 'PhotoAlbumCoverPhotoController@destroy']);
     });
     });
 

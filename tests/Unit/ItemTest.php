@@ -110,6 +110,7 @@ class ItemTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
+            'cover_photo_id' => null
         ]);
 
         $idObfuscator = Mockery::mock(IdObfuscator::class);
@@ -129,6 +130,7 @@ class ItemTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
+            'cover_photo_id' => null
         ], $result);
     }
 

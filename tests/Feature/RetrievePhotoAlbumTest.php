@@ -1,6 +1,7 @@
 <?php
 
 use App\Item;
+use App\Photo;
 use Carbon\Carbon;
 use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
@@ -13,6 +14,7 @@ class RetrievePhotoAlbumTest extends TestCase
     /** @test **/
     public function can_retrieve_a_published_photo_album()
     {
+        $coverPhoto = factory(Photo::class)->states('uploaded')->create();
         $album = factory(Item::class)->states('album', 'published')->create([
             'title' => 'Woodhill forest trip',
             'date' => Carbon::parse('November 12, 1995'),
@@ -22,7 +24,9 @@ class RetrievePhotoAlbumTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
+            'cover_photo_id' => $coverPhoto->id,
         ]);
+        $coverPhoto->update(['item_id' => $album->id]);
 
         $this->json('GET', '/photo-albums/'.$album->obfuscatedId());
 
@@ -30,7 +34,7 @@ class RetrievePhotoAlbumTest extends TestCase
         $this->seeJsonStructure([
             'data' => [
                 'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year',
-                'location', 'authorship', 'description'
+                'location', 'authorship', 'description', 'cover_photo_id'
             ]
         ]);
         $this->seeJson([
@@ -43,6 +47,7 @@ class RetrievePhotoAlbumTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
+            'cover_photo_id' => $coverPhoto->obfuscatedId()
         ]);
     }
 

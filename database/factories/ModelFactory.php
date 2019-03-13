@@ -92,7 +92,7 @@ $factory->state(App\Item::class, 'removed', function ($faker) {
 
 $factory->define(App\Photo::class, function (Faker\Generator $faker) {
     return  [
-        'item_id' => factory(App\Item::class)->state('draft')->create()->id,
+        'item_id' => factory(App\Item::class)->states('album', 'draft')->create()->id,
         'uploaded_by_id' => factory(App\User::class)->create()->id,
         'type' => 'image/jpeg',
         'number' => 24,
