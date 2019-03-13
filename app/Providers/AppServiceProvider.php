@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\IdObfuscator;
+use App\S3DirectUpload;
+use App\Video\VideoInfo;
 use App\OptimusIdObfuscator;
 use Illuminate\Http\Request;
-use App\S3DirectUpload;
+use App\Video\OEmbedVideoInfo;
 use App\VerificationCodeGenerator;
 use Illuminate\Support\ServiceProvider;
 use App\RandomVerificationCodeGenerator;
@@ -37,5 +39,7 @@ class AppServiceProvider extends ServiceProvider
                 env('AWS_S3_BUCKET_REGION')
             );
         });
+
+        $this->app->bind(VideoInfo::class, OEmbedVideoInfo::class);
     }
 }

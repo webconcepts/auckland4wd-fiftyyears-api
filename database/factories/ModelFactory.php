@@ -49,6 +49,18 @@ $factory->state(App\Item::class, 'album', function (Faker\Generator $faker) {
     ];
 });
 
+
+$factory->state(App\Item::class, 'video', function (Faker\Generator $faker) {
+    return [
+        'type' => App\Item::VIDEO,
+        'title' => 'Example video',
+        'authorship' => 'Example videographer',
+        'video_url' => 'https://www.vimeo.com/123456789',
+        'video_type' => 'vimeo',
+        'video_id' => '123456789',
+    ];
+});
+
 $factory->state(App\Item::class, 'published', function ($faker) {
     return [
         'published_at' => Carbon::parse('-1 week'),

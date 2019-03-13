@@ -6,14 +6,14 @@ use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
-class RetrievePhotoAlbumTest extends TestCase
+class RetrieveVideoTest extends TestCase
 {
     use DatabaseMigrations;
 
     /** @test **/
     public function can_retrieve_a_published_photo_album()
     {
-        $album = factory(Item::class)->states('album', 'published')->create([
+        $video = factory(Item::class)->states('video', 'published')->create([
             'title' => 'Woodhill forest trip',
             'date' => Carbon::parse('November 12, 1995'),
             'approx_day' => 12,
@@ -22,19 +22,22 @@ class RetrievePhotoAlbumTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
+            'video_url' => 'https://www.youtube.com/watch?v=3kjhd92387di',
+            'video_type' => 'youtube',
+            'video_id' => '3kjhd92387di',
         ]);
 
-        $this->json('GET', '/photo-albums/'.$album->obfuscatedId());
+        $this->json('GET', '/videos/'.$video->obfuscatedId());
 
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year',
-                'location', 'authorship', 'description'
+                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location',
+                'authorship', 'description', 'video_url', 'video_type', 'video_id'
             ]
         ]);
         $this->seeJson([
-            'id' => $album->obfuscatedId(),
+            'id' => $video->obfuscatedId(),
             'title' => 'Woodhill forest trip',
             'date' => '1995-11-12',
             'approx_day' => 12,
@@ -43,15 +46,18 @@ class RetrievePhotoAlbumTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
+            'video_url' => 'https://www.youtube.com/watch?v=3kjhd92387di',
+            'video_type' => 'youtube',
+            'video_id' => '3kjhd92387di'
         ]);
     }
 
     /** @test **/
     public function cannot_retrieve_a_draft_photo_album()
     {
-        $album = factory(Item::class)->states('album', 'draft')->create();
+        $video = factory(Item::class)->states('video', 'draft')->create();
 
-        $this->json('GET', '/photo-albums/'.$album->obfuscatedId());
+        $this->json('GET', '/videos/'.$video->obfuscatedId());
 
         $this->seeStatusCode(404);
     }
@@ -61,21 +67,21 @@ class RetrievePhotoAlbumTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $albumA = factory(Item::class)->states('album', 'published')->create();
-        $draft = factory(Item::class)->states('album', 'draft')->create();
-        $albumB = factory(Item::class)->states('album', 'published')->create();
-        $albumC = factory(Item::class)->states('album', 'published')->create();
+        $videoA = factory(Item::class)->states('video', 'published')->create();
+        $draft = factory(Item::class)->states('video', 'draft')->create();
+        $videoB = factory(Item::class)->states('video', 'published')->create();
+        $videoC = factory(Item::class)->states('video', 'published')->create();
 
-        $this->json('GET', '/photo-albums');
+        $this->json('GET', '/videos');
         $content = json_decode($this->response->getContent());
 
         $this->seeStatusCode(200);
         $this->seeJson();
 
         $this->assertCollectionEquals([
-            $albumA,
-            $albumB,
-            $albumC
+            $videoA,
+            $videoB,
+            $videoC
         ], $this->responseData('data'));
     }
 }

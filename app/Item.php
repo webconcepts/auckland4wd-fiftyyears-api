@@ -3,6 +3,7 @@
 namespace App;
 
 use Exception;
+use App\Video\VideoInfo;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
@@ -10,6 +11,7 @@ class Item extends Model
     use ObfuscatesId;
 
     const PHOTO_ALBUM = 1;
+    const VIDEO = 2;
 
     protected $guarded = [];
 
@@ -19,7 +21,16 @@ class Item extends Model
      * @var array $types accepted values for type
      */
     protected static $types = [
-        self::PHOTO_ALBUM => 'photoalbum'
+        self::PHOTO_ALBUM => 'photoalbum',
+        self::VIDEO => 'video'
+    ];
+
+    /**
+     * @var array $videoTypes accepted values for video_type
+     */
+    protected static $videoTypes = [
+        1 => 'youtube',
+        2 => 'vimeo'
     ];
 
     public function user()
@@ -81,6 +92,18 @@ class Item extends Model
         $this->attributes['description'] = strip_tags($value, '<p><br>');
     }
 
+    public function setVideoTypeAttribute($value)
+    {
+        $type = self::videoTypes()->search($value);
+
+        $this->attributes['video_type'] = $type ? $type : null;
+    }
+
+    public function getVideoTypeAttribute($value)
+    {
+        return self::videoTypes()->get($value);
+    }
+
     /**
      * Get the accepted types
      *
@@ -89,6 +112,16 @@ class Item extends Model
     public static function types()
     {
         return collect(self::$types);
+    }
+
+    /**
+     * Get the accepted video types
+     *
+     * @return array value => name
+     */
+    public static function videoTypes()
+    {
+        return collect(self::$videoTypes);
     }
 
     /**
@@ -175,18 +208,48 @@ class Item extends Model
         return $this;
     }
 
+    /**
+     * Set the video type and id from this items video url.
+     *
+     * @return $this
+     */
+    public function setVideoDetailsFromUrl()
+    {
+        $info = app(VideoInfo::class, ['url' => $this->video_url]);
+
+        $this->update([
+            'video_type' => $info->getType(),
+            'video_id' => $info->getId()
+        ]);
+
+        return $this;
+    }
+
     public function toArray()
     {
-        return [
+        $base = [
             'id' => $this->obfuscatedId(),
             'title' => $this->title,
             'date' => ($this->date) ? $this->date->toDateString() : null, // yyyy-mm-dd
             'approx_day' => $this->approx_day ? (int) $this->approx_day : null,
             'approx_month' => $this->approx_month ? (int) $this->approx_month : null,
             'approx_year' => $this->approx_year ? (int) $this->approx_year : null,
-            'location' => $this->location,
-            'authorship' => $this->authorship,
             'description' => $this->description,
         ];
+
+        if ($this->type == self::PHOTO_ALBUM) {
+            return $base + [
+                'location' => $this->location,
+                'authorship' => $this->authorship,
+            ];
+        } elseif ($this->type == self::VIDEO) {
+            return $base + [
+                'location' => $this->location,
+                'authorship' => $this->authorship,
+                'video_url' => $this->video_url,
+                'video_type' => $this->video_type,
+                'video_id' => $this->video_id,
+            ];
+        }
     }
 }

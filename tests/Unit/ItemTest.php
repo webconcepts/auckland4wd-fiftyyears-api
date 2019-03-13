@@ -190,4 +190,35 @@ class ItemTest extends TestCase
             $item->description
         );
     }
+
+    /** @test **/
+    public function can_set_video_type_to_only_youtube_or_vimeo()
+    {
+        $item = factory(Item::class)->make();
+        $this->assertNull($item->video_type);
+
+        $item->video_type = 'youtube';
+        $this->assertEquals('youtube', $item->video_type);
+
+        $item->video_type = 'vimeo';
+        $this->assertEquals('vimeo', $item->video_type);
+
+        $item->video_type = 'facebook';
+        $this->assertNull($item->video_type);
+    }
+
+    /** @test **/
+    public function can_set_video_type_and_id_from_video_url()
+    {
+        $item = factory(Item::class)->create();
+        $this->assertNull($item->video_url);
+        $this->assertNull($item->video_type);
+        $this->assertNull($item->video_id);
+
+        $item->video_url = 'https://www.youtube.com/watch?v=C4kxS1ksqtw';
+        $item->setVideoDetailsFromUrl();
+
+        $this->assertEquals('youtube', $item->video_type);
+        $this->assertEquals('C4kxS1ksqtw', $item->video_id);
+    }
 }

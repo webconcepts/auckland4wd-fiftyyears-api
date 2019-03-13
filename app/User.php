@@ -29,6 +29,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     protected $dates = ['verification_expires_at'];
 
+    public function draftItems()
+    {
+        return $this->hasMany(Item::class)->draft();
+    }
+
     public function photoAlbums()
     {
         return $this->hasMany(Item::class)->photoAlbum();

@@ -24,6 +24,9 @@ class CreateItemsTable extends Migration
             $table->integer('approx_year')->nullable();
             $table->string('location')->nullable();
             $table->string('authorship')->nullable();
+            $table->string('video_url')->nullable();
+            $table->unsignedInteger('video_type')->nullable();
+            $table->string('video_id')->nullable();
             $table->text('description')->nullable();
             $table->datetime('published_at')->nullable();
             $table->datetime('removed_at')->nullable();
