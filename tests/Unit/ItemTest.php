@@ -3,13 +3,31 @@
 use App\Item;
 use App\Photo;
 use Carbon\Carbon;
+use App\PhotoStore;
 use App\IdObfuscator;
+use App\Video\VideoInfo;
+use App\Video\FakeVideoInfo;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 
 class ItemTest extends TestCase
 {
     use DatabaseMigrations;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->app->bind(VideoInfo::class, FakeVideoInfo::class);
+
+        $this->app->instance(
+            PhotoStore::class,
+            Mockery::mock(PhotoStore::class)
+                ->shouldReceive('putFileFromURL')
+                ->andReturn(true)
+                ->getMock()
+        );
+    }
 
     /** @test */
     public function items_with_a_published_at_date_and_without_a_removed_at_date_are_published()
@@ -217,10 +235,28 @@ class ItemTest extends TestCase
         $this->assertNull($item->video_type);
         $this->assertNull($item->video_id);
 
+        Auth::login($item->user);
+
         $item->video_url = 'https://www.youtube.com/watch?v=C4kxS1ksqtw';
         $item->setVideoDetailsFromUrl();
 
         $this->assertEquals('youtube', $item->video_type);
         $this->assertEquals('C4kxS1ksqtw', $item->video_id);
+    }
+
+    /** @test **/
+    public function video_cover_photo_created_and_uploaded_when_setting_video_details()
+    {
+        $item = factory(Item::class)->create();
+
+        Auth::login($item->user);
+
+        $item->video_url = 'https://www.youtube.com/watch?v=C4kxS1ksqtw';
+        $item->setVideoDetailsFromUrl();
+
+        $photo = $item->coverPhoto;
+        $this->assertTrue($photo->isUploaded());
+        $this->assertEquals($item->id, $photo->item_id);
+        $this->assertEquals($photo->id, $item->fresh()->cover_photo_id);
     }
 }

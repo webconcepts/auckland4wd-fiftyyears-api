@@ -2,6 +2,7 @@
 
 use App\Item;
 use App\User;
+use App\PhotoStore;
 use App\Video\VideoInfo;
 use App\Video\FakeVideoInfo;
 use Laravel\Lumen\Testing\DatabaseMigrations;
@@ -16,6 +17,14 @@ class UpdateDraftVideoTest extends TestCase
         parent::setUp();
 
         $this->app->bind(VideoInfo::class, FakeVideoInfo::class);
+
+        $this->app->instance(
+            PhotoStore::class,
+            Mockery::mock(PhotoStore::class)
+                ->shouldReceive('putFileFromUrl')
+                ->andReturn(true)
+                ->getMock()
+        );
     }
 
     /** @test **/
@@ -53,25 +62,27 @@ class UpdateDraftVideoTest extends TestCase
         $this->seeJsonStructure([
             'data' => [
                 'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year',
-                'location', 'authorship', 'description', 'video_url', 'video_type', 'video_id',
+                'location', 'authorship', 'description', 'video_url', 'video_type', 'video_id', 'cover_photo_id'
             ]
-        ]);
-        $this->seeJson([
-            'id' => $video->obfuscatedId(),
-            'title' => 'New title',
-            'date' => '2018-12-31',
-            'approx_day' => 31,
-            'approx_month' => 12,
-            'approx_year' => 2018,
-            'location' => 'New location',
-            'authorship' => 'New videographer',
-            'description' => '<p>New description</p>',
-            'video_url' => 'https://vimeo.com/304131475',
-            'video_type' => 'vimeo',
-            'video_id' => '304131475'
         ]);
 
         tap($video->fresh(), function ($video) {
+            $this->seeJson([
+                'id' => $video->obfuscatedId(),
+                'title' => 'New title',
+                'date' => '2018-12-31',
+                'approx_day' => 31,
+                'approx_month' => 12,
+                'approx_year' => 2018,
+                'location' => 'New location',
+                'authorship' => 'New videographer',
+                'description' => '<p>New description</p>',
+                'video_url' => 'https://vimeo.com/304131475',
+                'video_type' => 'vimeo',
+                'video_id' => '304131475',
+                'cover_photo_id' => $video->coverPhoto->obfuscatedId()
+            ]);
+
             $this->assertEquals('New title', $video->title);
             $this->assertEquals('2018-12-31', $video->date->toDateString());
             $this->assertEquals(31, $video->approx_day);
@@ -368,8 +379,6 @@ class UpdateDraftVideoTest extends TestCase
     /** @test **/
     public function can_update_video_attributes()
     {
-        $this->withoutExceptionHandling();
-
         $video = factory(Item::class)->states('video', 'draft')->create([
             'video_url' => 'https://www.youtube.com/watch?v=1234',
             'video_type' => 'youtube',
@@ -388,6 +397,26 @@ class UpdateDraftVideoTest extends TestCase
             $this->assertEquals('vimeo', $video->video_type);
             $this->assertEquals('123123123', $video->video_id);
         });
+    }
+
+    /** @test **/
+    public function video_attributes_only_updated_when_video_url_was_changed()
+    {
+        // mock FakeVideoInfo so test fails if any methods are called
+        $this->app->bind(VideoInfo::class, Mockery::mock(FakeVideoInfo::class));
+
+        $video = factory(Item::class)->states('video', 'draft')->create([
+            'video_url' => 'https://www.youtube.com/watch?v=1234',
+            'video_type' => 'youtube',
+            'video_id' => '1234'
+        ]);
+        app('auth')->login($video->user);
+
+        $this->json('PATCH', '/drafts/videos/'.$video->obfuscatedId(), [
+            'video_url' => 'https://www.youtube.com/watch?v=1234',
+        ]);
+
+        $this->seeStatusCode(200);
     }
 
     /** @test **/

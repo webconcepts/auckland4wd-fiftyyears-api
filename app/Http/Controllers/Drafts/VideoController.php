@@ -25,7 +25,7 @@ class VideoController extends ItemController
      */
     protected function onAfterUpdate(Item $item, Request $request)
     {
-        if ($request->input('video_url')) {
+        if ($item->wasChanged('video_url')) {
             try {
                 $item->setVideoDetailsFromUrl();
             } catch (InvalidVideoTypeException $e) {

@@ -58,7 +58,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
             $this->assertEquals('image/jpeg', $this->responseData('upload.data.Content-Type'));
             $this->assertEquals(
-                'dev/'.$album->obfuscatedId().'/'.$photo->obfuscatedId(),
+                'test/'.$album->obfuscatedId().'/'.$photo->obfuscatedId(),
                 $this->responseData('upload.data.key')
             );
         });

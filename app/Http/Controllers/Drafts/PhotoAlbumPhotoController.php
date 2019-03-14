@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Drafts;
 
 use App\Item;
 use App\Photo;
+use App\PhotoStore;
 use App\S3DirectUpload;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -59,15 +60,10 @@ class PhotoAlbumPhotoController extends Controller
             'type' => ['required', Rule::in(Photo::types())],
         ]);
 
-        $photo = $album->photos()->create([
-            'uploaded_by_id' => Auth::id(),
-            'original_filename' => $request->input('filename'),
-            'type' => $request->input('type'),
-            'number' => $album->getNextAvailablePhotoNumber()
-        ]);
+        $photo = $album->addNewPhoto($request->input('filename'), $request->input('type'));
 
         $upload
-            ->setKey($photo->s3Key())
+            ->setKey(app(PhotoStore::class)->getKey($photo))
             ->setContentType($photo->type);
 
         return response([

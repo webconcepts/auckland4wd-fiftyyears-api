@@ -3,7 +3,9 @@
 namespace App;
 
 use Exception;
+use App\PhotoStore;
 use App\Video\VideoInfo;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
@@ -185,6 +187,23 @@ class Item extends Model
     }
 
     /**
+     * Create a new photo and associate it with this item
+     *
+     * @param string $originalFilename
+     * @param string $type mime type
+     * @return Photo
+     */
+    public function addNewPhoto($originalFilename, $type)
+    {
+        return $this->photos()->create([
+            'uploaded_by_id' => Auth::id(),
+            'original_filename' => $originalFilename,
+            'type' => $type,
+            'number' => $this->getNextAvailablePhotoNumber()
+        ]);
+    }
+
+    /**
      * Get the next highest number that could be used for a photo in this
      * album (the highest number in use, plus 1).
      *
@@ -229,6 +248,16 @@ class Item extends Model
             'video_id' => $info->getId()
         ]);
 
+        if ($url = $info->getImageUrl()) {
+            $photo = $this->addNewPhoto($url, 'image/jpeg');
+
+            // upload image to s3
+            if (app(PhotoStore::class)->putFileFromURL($photo, $url)) {
+                $photo->update(['uploaded' => true]);
+                $this->coverPhoto()->associate($photo)->save();
+            }
+        }
+
         return $this;
     }
 
@@ -257,6 +286,7 @@ class Item extends Model
                 'video_url' => $this->video_url,
                 'video_type' => $this->video_type,
                 'video_id' => $this->video_id,
+                'cover_photo_id' => $this->obfuscatedId('cover_photo_id'),
             ];
         }
 

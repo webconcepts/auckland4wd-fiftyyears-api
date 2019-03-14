@@ -2,6 +2,7 @@
 
 use App\Item;
 use App\User;
+use App\Photo;
 use Carbon\Carbon;
 use App\IdObfuscator;
 use Laravel\Lumen\Testing\DatabaseMigrations;
@@ -14,6 +15,7 @@ class RetrieveDraftVideoTest extends TestCase
     /** @test **/
     public function can_retrieve_a_draft_video()
     {
+        $coverPhoto = factory(Photo::class)->states('uploaded')->create();
         $video = factory(Item::class)->states('video', 'draft')->create([
             'title' => 'Woodhill forest trip',
             'date' => Carbon::parse('November 12, 1995'),
@@ -26,6 +28,7 @@ class RetrieveDraftVideoTest extends TestCase
             'video_url' => 'https://www.youtube.com/watch?v=3kjhd92387di',
             'video_type' => 'youtube',
             'video_id' => '3kjhd92387di',
+            'cover_photo_id' => $coverPhoto->id,
         ]);
 
         app('auth')->login($video->user);
@@ -35,7 +38,8 @@ class RetrieveDraftVideoTest extends TestCase
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year', 'location', 'authorship', 'description', 'video_url', 'video_type', 'video_id'
+                'id', 'title', 'date', 'approx_day', 'approx_month', 'approx_year',
+                'location', 'authorship', 'description', 'video_url', 'video_type', 'video_id', 'cover_photo_id'
             ]
         ]);
         $this->seeJson([
@@ -50,7 +54,8 @@ class RetrieveDraftVideoTest extends TestCase
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
             'video_url' => 'https://www.youtube.com/watch?v=3kjhd92387di',
             'video_type' => 'youtube',
-            'video_id' => '3kjhd92387di'
+            'video_id' => '3kjhd92387di',
+            'cover_photo_id' => $coverPhoto->obfuscatedId()
         ]);
     }
 

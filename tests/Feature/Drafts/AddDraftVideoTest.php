@@ -28,7 +28,7 @@ class AddDraftVideoTest extends TestCase
         $this->seeStatusCode(201);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'title', 'date', 'location', 'authorship', 'description', 'video_url', 'video_type'
+                'id', 'title', 'date', 'location', 'authorship', 'description', 'video_url', 'video_type', 'cover_photo_id'
             ]
         ]);
 
@@ -43,7 +43,8 @@ class AddDraftVideoTest extends TestCase
                 'authorship' => null,
                 'description' => null,
                 'video_url' => null,
-                'video_type' => null
+                'video_type' => null,
+                'cover_photo_id' => null,
             ]);
 
             $this->assertEquals(Item::VIDEO, $video->type);

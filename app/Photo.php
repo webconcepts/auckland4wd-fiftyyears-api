@@ -115,16 +115,6 @@ class Photo extends Model
         }
     }
 
-    /**
-     * Get the S3 key (path and filename) for this photo
-     *
-     * @return string
-     */
-    public function s3Key()
-    {
-        return env('AWS_S3_KEY_PREFIX', 'dev').'/'.$this->obfuscatedId('item_id').'/'.$this->obfuscatedId();
-    }
-
     public function toArray()
     {
         return [
