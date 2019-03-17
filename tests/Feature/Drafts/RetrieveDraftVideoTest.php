@@ -10,7 +10,11 @@ use Laravel\Lumen\Testing\DatabaseTransactions;
 
 class RetrieveDraftVideoTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseMigrations, RetrieveDraftItemContractTests;
+
+    protected $itemState = 'video';
+
+    protected $itemUrlPath = 'videos';
 
     /** @test **/
     public function can_retrieve_a_draft_video()
@@ -57,71 +61,5 @@ class RetrieveDraftVideoTest extends TestCase
             'video_id' => '3kjhd92387di',
             'cover_photo_id' => $coverPhoto->obfuscatedId()
         ]);
-    }
-
-    /** @test **/
-    public function cannot_retrieve_a_published_video()
-    {
-        $video = factory(Item::class)->states('video', 'published')->create();
-
-        app('auth')->login($video->user);
-
-        $this->json('GET', '/drafts/videos/'.$video->obfuscatedId());
-
-        $this->seeStatusCode(404);
-    }
-
-    /** @test **/
-    public function cannot_retrieve_someone_elses_draft_video()
-    {
-        $video = factory(Item::class)->states('video', 'draft')->create();
-
-        // log in as someone else, not owner of this album
-        app('auth')->login(factory(User::class)->create());
-
-        $this->json('GET', '/drafts/videos/'.$video->obfuscatedId());
-
-        $this->seeStatusCode(403);
-    }
-
-    /** @test **/
-    public function can_retrieve_someone_elses_draft_video_as_an_editor()
-    {
-        $video = factory(Item::class)->states('video', 'draft')->create();
-
-        // log in as someone else, not owner of this album
-        app('auth')->login(factory(User::class)->states('editor')->create());
-
-        $this->json('GET', '/drafts/videos/'.$video->obfuscatedId());
-
-        $this->seeStatusCode(200);
-    }
-
-    /** @test **/
-    public function can_retrieve_a_list_of_only_draft_videos()
-    {
-        $this->withoutExceptionHandling();
-
-        $user = factory(User::class)->create();
-        $otherUser = factory(User::class)->create();
-
-        $videoA = factory(Item::class)->states('video', 'draft')->create(['user_id' => $user->id]);
-        $published = factory(Item::class)->states('video', 'published')->create(['user_id' => $user->id]);
-        $videoB = factory(Item::class)->states('video', 'draft')->create(['user_id' => $user->id]);
-        $otherUsersVideo = factory(Item::class)->states('video', 'draft')->create(['user_id' => $otherUser->id]);
-        $videoC = factory(Item::class)->states('video', 'draft')->create(['user_id' => $user->id]);
-
-        app('auth')->login($user);
-
-        $this->json('GET', '/drafts/videos');
-
-        $this->seeStatusCode(200);
-        $this->seeJson();
-
-        $this->assertCollectionEquals([
-            $videoA,
-            $videoB,
-            $videoC
-        ], $this->responseData('data'));
     }
 }

@@ -18,9 +18,19 @@ abstract class ItemController extends Controller
     /**
      * Retrieve a list of items
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ['data' => Auth::user()->draftItems()->where('type', $this->type)->get()];
+        if (Auth::user()->isEditor() && $user = $request->input('user')) {
+            if ($user == 'all') {
+                $query = Item::draft();
+            } else {
+                $query = Item::draft()->where('user_id', User::actualId($user));
+            }
+        } else {
+            $query = Auth::user()->draftItems();
+        }
+
+        return ['data' => $query->where('type', $this->type)->get()];
     }
 
     /**
