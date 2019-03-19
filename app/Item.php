@@ -83,22 +83,22 @@ class Item extends Model
 
     public function setTitleAttribute($value)
     {
-        $this->attributes['title'] = strip_tags($value);
+        $this->attributes['title'] = app(ContentEditableInput::class)->sanitise($value);
     }
 
     public function setLocationAttribute($value)
     {
-        $this->attributes['location'] = strip_tags($value);
+        $this->attributes['location'] = app(ContentEditableInput::class)->sanitise($value);
     }
 
     public function setAuthorshipAttribute($value)
     {
-        $this->attributes['authorship'] = strip_tags($value);
+        $this->attributes['authorship'] = app(ContentEditableInput::class)->sanitise($value);
     }
 
     public function setDescriptionAttribute($value)
     {
-        $this->attributes['description'] = strip_tags($value, '<p><br>');
+        $this->attributes['description'] = app(ContentEditableInput::class)->sanitise($value, '<p><br>');
     }
 
     public function setVideoTypeAttribute($value)

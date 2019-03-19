@@ -35,4 +35,17 @@ class PhotoTest extends TestCase
 
         $this->assertFalse($photo->isRemoved());
     }
+
+    /** @test **/
+    public function html_stripped_when_setting_description_value()
+    {
+        $item = factory(Photo::class)->make();
+
+        $item->description = '<p>This is a description with <strong>tags</string> &amp; entities</p>';
+
+        $this->assertEquals(
+            'This is a description with tags & entities',
+            $item->description
+        );
+    }
 }

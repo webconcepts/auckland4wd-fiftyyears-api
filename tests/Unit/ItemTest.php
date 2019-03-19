@@ -173,9 +173,9 @@ class ItemTest extends TestCase
     {
         $item = factory(Item::class)->make();
 
-        $item->title = '<h1>This is an <strong>awesome</strong></ br> title</h1>';
+        $item->title = '<h1>This is an <strong>awesome</strong></ br> title with an &amp;</h1>';
 
-        $this->assertEquals('This is an awesome title', $item->title);
+        $this->assertEquals('This is an awesome title with an &', $item->title);
     }
 
     /** @test **/
@@ -183,9 +183,9 @@ class ItemTest extends TestCase
     {
         $item = factory(Item::class)->make();
 
-        $item->location = '<script></script>New location';
+        $item->location = '<script></script>New &quot;location&quot;';
 
-        $this->assertEquals('New location', $item->location);
+        $this->assertEquals('New "location"', $item->location);
     }
 
     /** @test **/
@@ -203,10 +203,10 @@ class ItemTest extends TestCase
     {
         $item = factory(Item::class)->make();
 
-        $item->description = '<p>This is a <strong>description</string></p><p>It has <u>paragraphs</u><br />and <em>line breaks</em></p>';
+        $item->description = '<p>This is a <strong>description</string></p><p>It has <u>paragraphs</u><br />&amp; <em>line breaks</em></p>';
 
         $this->assertEquals(
-            '<p>This is a description</p><p>It has paragraphs<br />and line breaks</p>',
+            '<p>This is a description</p><p>It has paragraphs<br />& line breaks</p>',
             $item->description
         );
     }

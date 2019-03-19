@@ -49,6 +49,11 @@ class Photo extends Model
         $this->attributes['type'] = $type ? $type : null;
     }
 
+    public function setDescriptionAttribute($value)
+    {
+        $this->attributes['description'] = app(ContentEditableInput::class)->sanitise($value);
+    }
+
     /**
      * Get the accepted types (mime types)
      *

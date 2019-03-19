@@ -9,7 +9,9 @@ use Laravel\Lumen\Testing\DatabaseTransactions;
 
 class AddDraftMilestoneTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseMigrations, AddDraftItemContractTests;
+
+    protected $itemUrlPath = 'milestones';
 
     /** @test **/
     public function can_create_a_valid_milestone()
@@ -51,34 +53,5 @@ class AddDraftMilestoneTest extends TestCase
             $this->assertEquals($user->id, $milestone->user->id);
             $this->assertEquals('jane@blogs.com', $milestone->user->email);
         });
-    }
-
-    /** @test **/
-    public function guest_cannot_create_a_milestone()
-    {
-        $this->json('POST', '/drafts/milestones', [
-            'title' => 'Woodhill forest trip',
-            'user' => (object) [
-                'name' => 'Joe Blogs',
-                'email' => 'joe@blogs.com'
-            ]
-        ]);
-
-        $this->seeStatusCode(401);
-
-        $this->assertEquals(0, Item::count());
-    }
-
-    /** @test **/
-    public function title_is_required()
-    {
-        app('auth')->login(factory(User::class)->create());
-
-        $this->json('POST', '/drafts/milestones', [
-            'title' => ''
-        ]);
-
-        $this->seeStatusCode(422);
-        $this->assertJsonHasKey('title');
     }
 }

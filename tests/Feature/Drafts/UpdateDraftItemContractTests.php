@@ -263,6 +263,22 @@ trait UpdateDraftItemContractTests
     }
 
     /** @test **/
+    public function will_decode_html_entities()
+    {
+        $item = factory(Item::class)->states($this->itemState, 'draft')->create([
+            'title' => 'Original title'
+        ]);
+        app('auth')->login($item->user);
+
+        $this->json('PATCH', '/drafts/'.$this->itemUrlPath.'/'.$item->obfuscatedId(), [
+            'title' => 'One thing &amp; another thing'
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals('One thing & another thing', $item->fresh()->title);
+    }
+
+    /** @test **/
     public function cannot_update_without_a_valid_field()
     {
         $item = factory(Item::class)->states($this->itemState, 'draft')->create();

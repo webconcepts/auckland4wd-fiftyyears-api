@@ -59,6 +59,10 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->singleton(ContentEditableInput::class, function () {
+            return new ContentEditableInput();
+        });
+
         $this->app->bind(IdObfuscator::class, OptimusIdObfuscator::class);
         $this->app->bind(VerificationCodeGenerator::class, RandomVerificationCodeGenerator::class);
         $this->app->bind(VideoInfo::class, OEmbedVideoInfo::class);
