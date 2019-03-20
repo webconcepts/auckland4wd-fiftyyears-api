@@ -13,11 +13,22 @@ use App\OptimusIdObfuscator;
 use Illuminate\Http\Request;
 use App\Video\OEmbedVideoInfo;
 use App\VerificationCodeGenerator;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use App\RandomVerificationCodeGenerator;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Schema::defaultStringLength(191);
+    }
+
     /**
      * Register any application services.
      *
