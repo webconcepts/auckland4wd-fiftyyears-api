@@ -57,10 +57,15 @@ class PhotoAlbumPhotoController extends Controller
 
         $this->validate($request, [
             'filename' => 'required',
+            'number' => 'integer|nullable',
             'type' => ['required', Rule::in(Photo::types())],
         ]);
 
-        $photo = $album->addNewPhoto($request->input('filename'), $request->input('type'));
+        $photo = $album->addNewPhoto(
+            $request->input('filename'),
+            $request->input('type'),
+            $request->input('number')
+        );
 
         $upload
             ->setKey(app(PhotoStore::class)->getKey($photo))

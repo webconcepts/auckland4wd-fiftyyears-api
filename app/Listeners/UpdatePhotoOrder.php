@@ -10,17 +10,35 @@ class UpdatePhotoOrder
 {
     public function handle(PhotoSaved $event)
     {
-        if ($event->photo->wasChanged('number')) {
+        if ($this->updateRequired($event->photo)) {
             $this->incrementOtherEqualOrHigherNumbers($event->photo);
         }
     }
 
+    protected function updateRequired(Photo $photo)
+    {
+        return ($photo->wasRecentlyCreated && $this->duplicateNumberExists($photo))
+            || (!$photo->wasRecentlyCreated && $photo->wasChanged('number'));
+    }
+
+    protected function duplicateNumberExists(Photo $photo)
+    {
+        return $this->getOtherAlbumPhotos($photo)
+            ->where('number', $photo->number)
+            ->count();
+    }
+
     protected function incrementOtherEqualOrHigherNumbers(Photo $photo)
+    {
+        return $this->getOtherAlbumPhotos($photo)
+            ->where('number', '>=', $photo->number)
+            ->increment('number');
+    }
+
+    protected function getOtherAlbumPhotos(Photo $photo)
     {
         return DB::table($photo->getTable())
             ->where('id', '<>', $photo->id)
-            ->where('item_id', $photo->item_id)
-            ->where('number', '>=', $photo->number)
-            ->increment('number');
+            ->where('item_id', $photo->item_id);
     }
 }

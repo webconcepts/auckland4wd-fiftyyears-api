@@ -100,6 +100,29 @@ class UpdateDraftPhotoAlbumPhotoTest extends TestCase
     }
 
     /** @test **/
+    public function number_is_incremented_when_given_number_already_exists()
+    {
+        $photo = factory(Photo::class)->state('not-uploaded')->create();
+        $album = $photo->item;
+        $otherPhotoA = factory(Photo::class)->create(['number' => 11, 'item_id' => $album->id]);
+        $otherPhotoB = factory(Photo::class)->create(['number' => 12, 'item_id' => $album->id]);
+        $otherPhotoC = factory(Photo::class)->create(['number' => 13, 'item_id' => $album->id]);
+
+        Auth::login($album->user);
+
+        $this->json('PATCH', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos/'.$photo->obfuscatedId(), [
+            'number' => 12
+        ]);
+
+        $this->seeStatusCode(200);
+        $this->assertEquals(12, $this->responseData('data.number'));
+        $this->assertEquals(11, $otherPhotoA->fresh()->number);
+        $this->assertEquals(12, $photo->fresh()->number);
+        $this->assertEquals(13, $otherPhotoB->fresh()->number);
+        $this->assertEquals(14, $otherPhotoC->fresh()->number);
+    }
+
+    /** @test **/
     public function uploaded_must_be_an_boolean()
     {
         $photo = factory(Photo::class)->state('not-uploaded')->create();

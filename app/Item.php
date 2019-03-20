@@ -193,13 +193,13 @@ class Item extends Model
      * @param string $type mime type
      * @return Photo
      */
-    public function addNewPhoto($originalFilename, $type)
+    public function addNewPhoto($originalFilename, $type, $number = null)
     {
         return $this->photos()->create([
             'uploaded_by_id' => Auth::id(),
             'original_filename' => $originalFilename,
             'type' => $type,
-            'number' => $this->getNextAvailablePhotoNumber()
+            'number' => ($number !== null) ? $number : $this->getNextAvailablePhotoNumber()
         ]);
     }
 

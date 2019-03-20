@@ -20,6 +20,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
 
         $this->json('POST', '/drafts/photo-albums/'.$album->obfuscatedId().'/photos', [
             'filename' => 'photo123.jpg',
+            'number' => 12,
             'type' => 'image/jpeg'
         ]);
 
@@ -53,7 +54,7 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
             $this->assertEquals($album->user_id, $photo->uploadedBy->id);
             $this->assertEquals('photo123.jpg', $photo->original_filename);
             $this->assertEquals('image/jpeg', $photo->type);
-            $this->assertEquals(1, $photo->number);
+            $this->assertEquals(12, $photo->number);
             $this->assertEquals(false, $photo->isUploaded());
 
             $this->assertEquals('image/jpeg', $this->responseData('upload.data.Content-Type'));
@@ -160,8 +161,8 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
     public function number_is_incremented_when_given_number_already_exists()
     {
         $album = factory(Item::class)->state('album', 'draft')->create();
-        factory(Photo::class)->create(['number' => 12, 'item_id' => $album->id]);
-        factory(Photo::class)->create(['number' => 13, 'item_id' => $album->id]);
+        $photoA = factory(Photo::class)->create(['number' => 12, 'item_id' => $album->id]);
+        $photoB = factory(Photo::class)->create(['number' => 13, 'item_id' => $album->id]);
 
         Auth::login($album->user);
 
@@ -172,7 +173,8 @@ class AddDraftPhotoAlbumPhotoTest extends TestCase
         ]);
 
         $this->seeStatusCode(201);
-        $this->assertEquals(14, $this->responseData('data.number'));
-        $this->assertEquals(14, $album->photos->last()->number);
+        $this->assertEquals(12, $this->responseData('data.number'));
+        $this->assertEquals(13, $photoA->fresh()->number);
+        $this->assertEquals(14, $photoB->fresh()->number);
     }
 }
