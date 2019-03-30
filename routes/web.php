@@ -15,6 +15,9 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->get('timeline', ['uses' => 'TimelineController@index']);
+$router->get('timeline/{year}', ['uses' => 'TimelineController@show']);
+
 $router->get('photo-albums', ['uses' => 'PhotoAlbumController@index']);
 $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
 
@@ -25,6 +28,8 @@ $router->get('milestones', ['uses' => 'MilestoneController@index']);
 $router->get('milestones/{obfuscatedId}', ['uses' => 'MilestoneController@show', 'as' => 'milestones.show']);
 
 $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => 'auth'], function () use ($router) {
+    $router->get('timeline', ['uses' => 'TimelineController@index']);
+
     $router->group(['prefix' => 'photo-albums'], function () use ($router) {
         $router->get('', ['uses' => 'PhotoAlbumController@index']);
         $router->post('', ['uses' => 'PhotoAlbumController@store']);

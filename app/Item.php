@@ -278,6 +278,7 @@ class Item extends Model
                 'location' => $this->location,
                 'authorship' => $this->authorship,
                 'cover_photo_id' => $this->obfuscatedId('cover_photo_id'),
+                'type' => 'photo-album',
             ];
         } elseif ($this->type == self::VIDEO) {
             return $base + [
@@ -287,6 +288,7 @@ class Item extends Model
                 'video_type' => $this->video_type,
                 'video_id' => $this->video_id,
                 'cover_photo_id' => $this->obfuscatedId('cover_photo_id'),
+                'type' => 'video',
             ];
         }
 

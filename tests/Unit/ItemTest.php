@@ -128,7 +128,7 @@ class ItemTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
-            'cover_photo_id' => null
+            'cover_photo_id' => null,
         ]);
 
         $idObfuscator = Mockery::mock(IdObfuscator::class);
@@ -148,8 +148,29 @@ class ItemTest extends TestCase
             'location' => 'Woodhill forest',
             'authorship' => 'John Smith',
             'description' => '<p>This trip was organised by Joe Blogs.</p><p>We had a very large turnout, with over 40 vehicles attending</p>',
-            'cover_photo_id' => null
+            'cover_photo_id' => null,
+            'type' => 'photo-album'
         ], $result);
+    }
+
+    /** @test **/
+    public function type_video_returned_for_video_items_when_converting_to_array()
+    {
+        $item = factory(Item::class)->state('video')->create();
+
+        $result = $item->toArray();
+
+        $this->assertEquals('video', $result['type']);
+    }
+
+    /** @test **/
+    public function no_type_returned_for_milestone_items_when_converting_to_array()
+    {
+        $item = factory(Item::class)->state('milestone')->create();
+
+        $result = $item->toArray();
+
+        $this->assertFalse(array_key_exists('type', $result));
     }
 
     /** @test **/
