@@ -21,6 +21,11 @@ $router->get('timeline/{year}', ['uses' => 'TimelineController@show']);
 $router->get('photo-albums', ['uses' => 'PhotoAlbumController@index']);
 $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
 
+$router->group(['prefix' => 'photo-albums/{obfuscatedAlbumId}'], function () use ($router) {
+    $router->get('photos', ['uses' => 'PhotoAlbumPhotoController@index']);
+    $router->get('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@show']);
+});
+
 $router->get('videos', ['uses' => 'VideoController@index']);
 $router->get('videos/{obfuscatedId}', ['uses' => 'VideoController@show', 'as' => 'videos.show']);
 
