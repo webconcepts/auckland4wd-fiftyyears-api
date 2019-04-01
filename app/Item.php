@@ -98,7 +98,7 @@ class Item extends Model
 
     public function setDescriptionAttribute($value)
     {
-        $this->attributes['description'] = app(ContentEditableInput::class)->sanitise($value, '<p><br>');
+        $this->attributes['description'] = app(ContentEditableInput::class)->sanitise($value, '<p><br><div>');
     }
 
     public function setVideoTypeAttribute($value)

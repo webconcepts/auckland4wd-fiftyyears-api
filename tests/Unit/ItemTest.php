@@ -224,10 +224,10 @@ class ItemTest extends TestCase
     {
         $item = factory(Item::class)->make();
 
-        $item->description = '<p>This is a <strong>description</string></p><p>It has <u>paragraphs</u><br />&amp; <em>line breaks</em></p>';
+        $item->description = '<p class="something" style="font-family:Arial">This is a <strong>description</string></p><div>It has <u>paragraphs</u><br />&amp; <em>line breaks</em></div>';
 
         $this->assertEquals(
-            '<p>This is a description</p><p>It has paragraphs<br />& line breaks</p>',
+            '<p>This is a description</p><div>It has paragraphs<br>& line breaks</div>',
             $item->description
         );
     }
