@@ -32,6 +32,17 @@ $router->get('videos/{obfuscatedId}', ['uses' => 'VideoController@show', 'as' =>
 $router->get('milestones', ['uses' => 'MilestoneController@index']);
 $router->get('milestones/{obfuscatedId}', ['uses' => 'MilestoneController@show', 'as' => 'milestones.show']);
 
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    // publish items
+    $router->post('photo-albums', ['uses' => 'PhotoAlbumController@store']);
+    $router->post('videos', ['uses' => 'VideoController@store']);
+    $router->post('milestones', ['uses' => 'MilestoneController@store']);
+    // unpublish items
+    $router->delete('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@destroy']);
+    $router->delete('videos/{obfuscatedId}', ['uses' => 'VideoController@destroy']);
+    $router->delete('milestones/{obfuscatedId}', ['uses' => 'MilestoneController@destroy']);
+});
+
 $router->group(['prefix' => 'drafts', 'namespace' => 'Drafts', 'middleware' => 'auth'], function () use ($router) {
     $router->get('timeline', ['uses' => 'TimelineController@index']);
 
