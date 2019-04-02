@@ -18,6 +18,8 @@ $router->get('/', function () use ($router) {
 $router->get('timeline', ['uses' => 'TimelineController@index']);
 $router->get('timeline/{year}', ['uses' => 'TimelineController@show']);
 
+$router->get('slideshow', ['uses' => 'SlideshowController@index']);
+
 $router->get('photo-albums', ['uses' => 'PhotoAlbumController@index']);
 $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@show', 'as' => 'photoalbums.show']);
 
