@@ -10,6 +10,24 @@ class PhotoTest extends TestCase
     use DatabaseMigrations;
 
     /** @test **/
+    public function converting_to_an_array()
+    {
+        $photo = factory(Photo::class)->create([
+            'id' => 123,
+            'number' => 24,
+            'description' => 'This is the description',
+            'likes' => 5,
+        ]);
+
+        $array = $photo->toArray();
+
+        $this->assertEquals($photo->obfuscatedId(), $array['id']);
+        $this->assertEquals(24, $array['number']);
+        $this->assertEquals('This is the description', $array['description']);
+        $this->assertEquals(5, $array['likes']);
+    }
+
+    /** @test **/
     public function photo_in_a_draft_photo_album_can_be_removed()
     {
         $album = factory(Item::class)->states('album', 'draft')->create();
@@ -39,13 +57,21 @@ class PhotoTest extends TestCase
     /** @test **/
     public function html_stripped_when_setting_description_value()
     {
-        $item = factory(Photo::class)->make();
+        $photo = factory(Photo::class)->make();
 
-        $item->description = '<p>This is a description with <strong>tags</string> &amp; entities</p>';
+        $photo->description = '<p>This is a description with <strong>tags</string> &amp; entities</p>';
 
         $this->assertEquals(
             'This is a description with tags & entities',
-            $item->description
+            $photo->description
         );
+    }
+
+    /** @test **/
+    public function likes_default_to_zero()
+    {
+        $photo = new Photo();
+
+        $this->assertEquals(0, $photo->likes);
     }
 }

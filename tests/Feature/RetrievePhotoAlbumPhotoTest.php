@@ -21,6 +21,7 @@ class RetrievePhotoAlbumPhotoTest extends TestCase
             'number' => 24,
             'uploaded' => true,
             'description' => 'This is an example description',
+            'likes' => 2,
         ]);
 
         factory(Photo::class)->states('uploaded')->create(['item_id' => $album->id, 'number' => 27]);
@@ -37,7 +38,7 @@ class RetrievePhotoAlbumPhotoTest extends TestCase
         $this->seeStatusCode(200);
         $this->seeJsonStructure([
             'data' => [
-                'id', 'number', 'uploaded', 'description'
+                'id', 'number', 'uploaded', 'description', 'likes'
             ],
             'next',
             'previous'
@@ -47,6 +48,7 @@ class RetrievePhotoAlbumPhotoTest extends TestCase
             'number' => 24,
             'uploaded' => true,
             'description' => 'This is an example description',
+            'likes' => 2,
         ]);
         $this->seeJson(['next' => $next->obfuscatedId()]);
         $this->seeJson(['previous' => $previous->obfuscatedId()]);

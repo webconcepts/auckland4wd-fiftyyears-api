@@ -24,6 +24,7 @@ $router->get('photo-albums/{obfuscatedId}', ['uses' => 'PhotoAlbumController@sho
 $router->group(['prefix' => 'photo-albums/{obfuscatedAlbumId}'], function () use ($router) {
     $router->get('photos', ['uses' => 'PhotoAlbumPhotoController@index']);
     $router->get('photos/{obfuscatedId}', ['uses' => 'PhotoAlbumPhotoController@show']);
+    $router->post('photos/{obfuscatedId}/likes', ['uses' => 'PhotoAlbumPhotoLikesController@store']);
 });
 
 $router->get('videos', ['uses' => 'VideoController@index']);

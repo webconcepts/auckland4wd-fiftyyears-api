@@ -127,6 +127,7 @@ class Photo extends Model
             'number' => (int) $this->number,
             'uploaded' => $this->isUploaded(),
             'description' => $this->description,
+            'likes' => (int) $this->likes,
         ];
     }
 }

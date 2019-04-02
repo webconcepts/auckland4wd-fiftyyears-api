@@ -22,6 +22,7 @@ class CreatePhotosTable extends Migration
             $table->tinyInteger('type')->unsigned();
             $table->string('original_filename');
             $table->text('description')->nullable();
+            $table->unsignedInteger('likes')->default(0);
             $table->datetime('removed_at')->nullable();
             $table->timestamps();
         });
