@@ -18,7 +18,7 @@ class RetrieveSlideshowTest extends TestCase
     }
 
     /** @test **/
-    public function get_random_images_for_a_random_album()
+    public function get_random_images_for_an_album()
     {
         $this->withoutExceptionHandling();
 
@@ -85,7 +85,7 @@ class RetrieveSlideshowTest extends TestCase
     }
 
     /** @test **/
-    public function albums_can_be_retreived_in_order_using_offset()
+    public function albums_can_be_retreived_in_date_order_using_offset()
     {
         $albumA = factory(Item::class)->states('album', 'published')->create(['date' => Carbon::parse('1995-12-22')]);
         $this->photo($albumA);
@@ -105,6 +105,55 @@ class RetrieveSlideshowTest extends TestCase
 
         $this->json('GET', '/slideshow', ['number' => 2, 'offset' => 3]);
         $this->assertEquals($albumC->id, $this->responseData('data')->id);
+    }
+
+    // This test will fail when using sqlite (requires mysql rand() with a seed)
+    /** @test **/
+    /*public function albums_can_be_retreived_in_repeatable_random_order_using_seed_and_offset()
+    {
+        $this->withoutExceptionHandling();
+
+        $albumA = factory(Item::class)->states('album', 'published')->create(['date' => Carbon::parse('1995-12-22')]);
+        $this->photo($albumA);
+        $this->photo($albumA);
+        $albumB = factory(Item::class)->states('album', 'published')->create(['date' => Carbon::parse('1969-01-12')]);
+        $this->photo($albumB);
+        $this->photo($albumB);
+        $albumC = factory(Item::class)->states('album', 'published')->create(['date' => Carbon::parse('2002-05-01')]);
+        $this->photo($albumC);
+        $this->photo($albumC);
+
+        $this->json('GET', '/slideshow', ['number' => 2, 'seed' => 839472, 'offset' => 2]);
+
+        $albumID = $this->responseData('data')->id;
+
+        $this->json('GET', '/slideshow', ['number' => 2, 'seed' => 839472, 'offset' => 2]);
+        $this->assertEquals($albumID, $this->responseData('data')->id);
+
+        $this->json('GET', '/slideshow', ['number' => 2, 'seed' => 839472, 'offset' => 2]);
+        $this->assertEquals($albumID, $this->responseData('data')->id);
+
+        $this->json('GET', '/slideshow', ['number' => 2, 'seed' => 839472, 'offset' => 3]);
+        $this->assertNotEquals($albumID, $this->responseData('data')->id);
+    }*/
+
+    /** @test **/
+    public function will_return_404_when_offset_is_greater_than_number_of_albums()
+    {
+        $albumA = factory(Item::class)->states('album', 'published')->create();
+        $this->photo($albumA);
+        $albumB = factory(Item::class)->states('album', 'published')->create();
+        $this->photo($albumB);
+        $albumC = factory(Item::class)->states('album', 'published')->create();
+        $this->photo($albumC);
+
+        $this->json('GET', '/slideshow', ['number' => 2, 'offset' => 3]);
+
+        $this->seeStatusCode(200);
+
+        $this->json('GET', '/slideshow', ['number' => 2, 'offset' => 4]);
+
+        $this->seeStatusCode(404);
     }
 
     /** @test **/
@@ -148,5 +197,19 @@ class RetrieveSlideshowTest extends TestCase
 
         $this->seeStatusCode(422);
         $this->assertJsonHasKey('offset');
+    }
+
+    /** @test **/
+    public function seed_must_be_a_positive_integer()
+    {
+        $this->json('GET', '/slideshow', ['seed' => -2]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('seed');
+
+        $this->json('GET', '/slideshow', ['seed' => 1.5]);
+
+        $this->seeStatusCode(422);
+        $this->assertJsonHasKey('seed');
     }
 }

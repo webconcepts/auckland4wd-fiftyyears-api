@@ -17,35 +17,42 @@ class SlideshowController extends Controller
     {
         $this->validate($request, [
             'offset' => 'integer|min:1|nullable',
+            'seed' => 'integer|min:1|nullable',
             'number' => 'integer|min:1|nullable',
         ]);
 
-        // get random album, or next album by offset
-        $offset = $request->input('offset', null);
-        $album = $this->getAlbum($offset);
+        $offset = $request->input('offset', 1);
+        $seed = $request->input('seed', null);
+
+        $album = $this->getAlbum($offset, $seed);
         $photos = $this->getPhotos($album, $request->input('number', 7));
 
         return [
             'data' => $album,
-            'photos' => $photos,
+            'photos' => $photos->values(),
             'offset' => $offset,
+            'seed' => $seed,
         ];
     }
 
     /**
      * Get an album, either randomly, or at a given offset
      *
+     * @param int $offset
+     * @param int $seed for random ordering
      * @return Item
      */
-    protected function getAlbum($offset = null)
+    protected function getAlbum($offset = 1, $seed = null)
     {
         $albums = Item::published()->where('type', Item::PHOTO_ALBUM);
 
-        if ($offset) {
-            return $albums->orderBy('date')->offset($offset - 1)->first();
+        if ($seed) {
+            $ordered = $albums->inRandomOrder($seed);
         } else {
-            return $albums->inRandomOrder()->first();
+            $ordered = $albums->orderBy('date');
         }
+
+        return $ordered->offset((int) $offset - 1)->firstOrFail();
     }
 
     /**
@@ -59,6 +66,7 @@ class SlideshowController extends Controller
     protected function getPhotos(Item $album, $number)
     {
         return $album->photos()
+            ->uploaded()
             ->orderBy('likes', 'desc')
             ->inRandomOrder()
             ->take($number)
