@@ -91,7 +91,7 @@ abstract class ItemController extends Controller
             ->only(['approx_day', 'approx_month', 'approx_year'])
             ->count();
 
-        if (!Auth::user()->isEditor() && !$item->wasChanged('date') && $givenApproximateDate) {
+        if (!$item->wasChanged('date') && $givenApproximateDate) {
             $item->setDateFromApproximateDate()
                 ->save();
         }

@@ -188,7 +188,7 @@ trait UpdateDraftItemContractTests
     }
 
     /** @test **/
-    public function updating_approximate_date_values_updates_date_for_non_editors()
+    public function updating_approximate_date_values_updates_date()
     {
         $item = factory(Item::class)->states($this->itemState, 'draft')->create([
             'date' => '1990-11-24',
@@ -218,32 +218,6 @@ trait UpdateDraftItemContractTests
 
         $this->seeStatusCode(200);
         $this->assertEquals('2001-05-13', $item->fresh()->date->toDateString());
-    }
-
-    /** @test **/
-    public function updating_approximate_date_will_not_update_date_for_an_editor()
-    {
-        $user = factory(User::class)->states('editor')->create();
-        $item = factory(Item::class)->states($this->itemState, 'draft')->create([
-            'user_id' => $user->id,
-            'date' => '1990-11-24',
-            'approx_day' => 24,
-            'approx_month' => 11,
-            'approx_year' => 1990,
-        ]);
-        app('auth')->login($user);
-
-        $this->json('PATCH', '/drafts/'.$this->itemUrlPath.'/'.$item->obfuscatedId(), [
-            'approx_year' => '2001',
-            'approx_month' => '12',
-            'approx_day' => '2'
-        ]);
-
-        $this->seeStatusCode(200);
-        $this->assertEquals('1990-11-24', $item->fresh()->date->toDateString());
-        $this->assertEquals(2, $item->fresh()->approx_day);
-        $this->assertEquals(12, $item->fresh()->approx_month);
-        $this->assertEquals(2001, $item->fresh()->approx_year);
     }
 
     /** @test **/
