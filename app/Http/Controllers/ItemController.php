@@ -70,7 +70,6 @@ abstract class ItemController extends Controller
 
         $routeName = 'drafts.'.Item::types()[$this->type].'s.show';
 
-        return response('', 200)
-            ->header('Location', route($routeName, ['obfuscatedId' => $item->obfuscatedId()]));
+        return response('', 200);
     }
 }

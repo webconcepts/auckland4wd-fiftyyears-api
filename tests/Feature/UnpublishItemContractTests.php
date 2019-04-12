@@ -29,7 +29,6 @@ trait UnpublishItemContractTests
         $this->json('DELETE', '/'.$this->itemUrlPath.'/'.$item->obfuscatedId());
 
         $this->seeStatusCode(200);
-        $this->seeHeader('Location', url('/drafts/'.$this->itemUrlPath.'/'.$item->obfuscatedId()));
         $this->assertTrue($item->fresh()->isDraft());
     }
 
@@ -59,7 +58,6 @@ trait UnpublishItemContractTests
         $this->json('DELETE', '/'.$this->itemUrlPath.'/'.$item->obfuscatedId());
 
         $this->seeStatusCode(200);
-        $this->seeHeader('Location', url('/drafts/'.$this->itemUrlPath.'/'.$item->obfuscatedId()));
         $this->assertTrue($item->fresh()->isDraft());
     }
 }
