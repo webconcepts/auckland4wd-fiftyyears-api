@@ -19,12 +19,15 @@ class SlideshowController extends Controller
             'offset' => 'integer|min:1|nullable',
             'seed' => 'integer|min:1|nullable',
             'number' => 'integer|min:1|nullable',
+            'from_year' => 'integer|min:1969|max:2019|nullable',
         ]);
 
-        $offset = $request->input('offset', 1);
-        $seed = $request->input('seed', null);
+        $album = $this->getAlbum(
+            $offset = $request->input('offset', 1),
+            $seed = $request->input('seed', null),
+            $fromYear = $request->input('from_year', null)
+        );
 
-        $album = $this->getAlbum($offset, $seed);
         $photos = $this->getPhotos($album, $request->input('number', 7));
 
         return [
@@ -32,6 +35,7 @@ class SlideshowController extends Controller
             'photos' => $photos->values(),
             'offset' => $offset,
             'seed' => $seed,
+            'from_year' => $fromYear,
         ];
     }
 
@@ -40,11 +44,16 @@ class SlideshowController extends Controller
      *
      * @param int $offset
      * @param int $seed for random ordering
+     * @param int $fromYear
      * @return Item
      */
-    protected function getAlbum($offset = 1, $seed = null)
+    protected function getAlbum($offset = 1, $seed = null, $fromYear = null)
     {
         $albums = Item::published()->where('type', Item::PHOTO_ALBUM);
+
+        if ($fromYear) {
+            $albums = $albums->where('date', '>=', $fromYear.'-01-01');
+        }
 
         if ($seed) {
             $ordered = $albums->inRandomOrder($seed);
